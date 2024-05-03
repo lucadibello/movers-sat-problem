@@ -1,0 +1,7 @@
+name: movers
+channels:
+  - defaults
+dependencies:
+  - pip:
+    - z3-solver==4.13.0.0
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/movers
