@@ -14,7 +14,7 @@ Theory of Computation, Spring 2024
 
 ## 2. Getting started
 
-
+Please, refer to the [Getting Started](./docs/getting-started.md) guide to learn how to properly run the tool.
 
 > Add meaningful description here
 
