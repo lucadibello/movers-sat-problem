@@ -2,10 +2,6 @@ FROM mcr.microsoft.com/devcontainers/anaconda:0-3
 
 COPY ./environment.yml /tmp/environment.yml
 
-# install additional OS packages
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-	&& apt-get -y install --no-install-recommends mininet iputils-ping iproute2 net-tools iperf3 openvswitch-switch
-
 # Create environment from file
 RUN /opt/conda/bin/conda env create -f /tmp/environment.yml
 
