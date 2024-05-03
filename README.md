@@ -2,6 +2,10 @@
 
 Theory of Computation, Spring 2024
 
+## DEV NOTES<!-- omit in toc -->
+
+Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/python>
+
 ## Table of Contents<!-- omit in toc -->
 
 - [1. Problem description](#1-problem-description)

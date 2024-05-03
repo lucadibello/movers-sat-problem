@@ -38,6 +38,19 @@ Option B: Using `pip`:
 pip install -r requirements.txt
 ```
 
-## Step 3: Run the tool
+## Step 3: Run the backend
+
+```bash
+# Start the backend in production mode
+cd ./src/backend && make start
+```
+
+or, if you want to start the backend in development mode (with *fast refresh*):
+
+```bash
+# Start the backend in production mode
+cd ./src/backend && make dev
+```
+
 
 > We need to write something here!

@@ -37,4 +37,6 @@ dependencies:
   - zlib=1.2.13
   - pip:
       - z3-solver==4.13.0.0
+      - uvicorn==0.29.0
+      - orjson==3.10.2
 prefix: /opt/conda/envs/movers
