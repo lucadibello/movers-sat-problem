@@ -18,3 +18,15 @@ RUN source /opt/conda/bin/activate movers
 RUN echo "source /opt/conda/bin/activate movers" >> ~/.bashrc
 # Delete environment file
 RUN rm /tmp/environment.yml
+
+# Go to tmp directory
+WORKDIR /tmp
+# Clone z3 repository
+RUN git clone https://github.com/Z3Prover/z3.git
+WORKDIR /tmp/z3
+
+# Build z3
+RUN python3 scripts/mk_make.py
+WORKDIR /tmp/z3/build
+RUN make
+RUN make install
