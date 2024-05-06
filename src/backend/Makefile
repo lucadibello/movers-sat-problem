@@ -4,5 +4,8 @@ dev:
 start:
 	uvicorn main:app --port 8000 --host 0.0.0.0
 
+checker:
+	python3 prover/first_task.py
+
 build-index:
 	python3 build-index.py
