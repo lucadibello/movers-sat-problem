@@ -1,5 +1,4 @@
 # Import z3 prover
-import builtins
 from z3 import *
 
 # The following exercises concern encoding of the movers problem: Your moving company is
@@ -32,7 +31,7 @@ m: int = 3
 n: int = 3
 
 # FIXME: t is a variable given by the user
-t = 10
+max_t = 10
 
 # Create list of movers
 movers = ['Joe', 'Bill', 'Mia']
@@ -53,7 +52,7 @@ s = Solver()
 atFloor = dict[str, dict[int, Bool]]()
 for mover in movers:
     for floor in floors:
-        for time in range(t):
+        for time in range(max_t):
             atFloor[mover][floor][time] = Bool(
                 f'{mover}_atFloor_{floor}_{time}'
             )
@@ -64,7 +63,7 @@ ascend = dict[str, Int]()
 descend = dict[str, Int]()
 carry = dict[str, Int]()
 for mover in movers:
-    for time in range(t):
+    for time in range(max_t):
         ascend[mover] = Bool(f'{mover}_ascend_{time}')
         descend[mover] = Bool(f'{mover}_descend_{time}')
         carry[mover] = Bool(f'{mover}_carry_{time}')
@@ -73,7 +72,7 @@ for mover in movers:
 # Model also the effect of the actions on the state of the movers
 # at a given time
 for mover in movers:
-    for time in range(t):
+    for time in range(max_t):
         for floor in floors:
             s.add(Implies(ascend[mover], atFloor[mover][floor + 1][time + 1]))
             s.add(Implies(descend[mover], atFloor[mover][floor - 1][time + 1]))
@@ -96,7 +95,7 @@ for mover in movers:
 # 1) All movers are in the ground floor at time 0 and
 # they cannot be in any other floor
 for mover in movers:
-    for time in range(t):
+    for time in range(max_t):
         if time == 0:
             s.add(atFloor[mover][0][0])
         else:
@@ -104,4 +103,4 @@ for mover in movers:
 
 # 2) At time t, all movers are at the start state
 for mover in movers:
-    s.add(atFloor[mover][0][t])
+    s.add(atFloor[mover][0][max_t])
