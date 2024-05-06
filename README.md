@@ -9,6 +9,7 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 ## Table of Contents<!-- omit in toc -->
 
 - [1. Problem description](#1-problem-description)
+	- [1.1. Constraints](#11-constraints)
 - [2. Mathematical representation](#2-mathematical-representation)
 	- [2.1. Sets / Domains](#21-sets--domains)
 	- [2.2. Data](#22-data)
@@ -19,7 +20,22 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 
 ## 1. Problem description
 
-> Add meaningful text here
+In the *movers* satisfability problem, a moving company is tasked with relocating all furniture from a building with multiple floors. The objective is to move all furniture to the ground floor within a given time frame (maximum number of time steps). For this task, the company has a team of movers of size $m$, and each mover is identified with a unique name, and can move up or down one floor at a time. 
+
+The building has $n$ floors, each identifier by a unique integer number. The building contains a set of forniture $F = \lbrace f_1, f_2, \ldots, f_n \rbrace$ to be moved. Each piece of forniture is located within the floors of the building, and there could be more than one piece of forniture in the same floor. The movers are initially located at the ground floor of the building, and they must move all forniture to the ground floor within a given time frame. By the end of the time frame, all movers and all forniture must be located at the ground floor in order to solve the problem.
+
+When a mover is at the same floor as a piece of forniture, and decides to carry it, the mover and the forniture in question are moved together to the floor below. 
+
+### 1.1. Constraints
+
+From the problem description, the following constraints can be identified:
+
+1. Each mover can either move up or down one floor at a time, or stay in the same floor.
+2. Each mover can carry at most one piece of forniture at a time. To carry a piece of forniture, the mover must be at the same floor as the forniture.
+3. The carrying of forniture by the movers is not mandatory. A mover can move to a different floor without carrying any forniture.
+4. At ground floor, the movers can only ascend to the first floor, as there are no floors below the ground floor.
+5. Movers are not allowed to carry forniture that is already at the ground floor.
+6. The movers and the forniture must be at the ground floor at maximum time step $max_t$. If they are able to reach the ground floor before $max_t$, the problem is considered also solved.
 
 ## 2. Mathematical representation
 
