@@ -16,7 +16,17 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 
 > Add meaningful text here
 
-## 2. Mathematical model
+## 2. Mathematical representation
+
+### 2.1. Sets / Domains
+
+- 
+
+### 2.2. Data
+
+### 2.3. Mathematical model
+
+### 2.4. Input data format
 
 ## 3. Getting started
 
