@@ -25,10 +25,10 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 
 ### 2.1. Sets / Domains
 
-- $M = {m_1, m_2, \ldots, m_m}$: set of mover identifiers
-- $L = {l_1, l_2, \ldots, l_n}$: set of floor identifiers ("levels") in the building
-- $T = {t_1, t_2, \ldots, t_{max_t}}$: set of time step identifiers
-- $F = {f_1, f_2, \ldots, f_n}$: set of forniture to be moved by the movers
+- $M = \lbrace m_1, m_2, \ldots, m_m \rbrace$: set of mover identifiers
+- $L = \lbrace l_1, l_2, \ldots, l_n \rbrace$: set of floor identifiers ("levels") in the building
+- $T = \lbrace t_1, t_2, \ldots, t_{max_t} \rbrace$: set of time step identifiers from $1$ to $max_t$
+- $F = \lbrace f_1, f_2, \ldots, f_n \rbrace$: set of forniture to be moved by the movers
 
 ### 2.2. Data
 
