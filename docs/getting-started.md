@@ -13,9 +13,9 @@ You can clone the repository using `git`:
 
 ```bash
 # With SSH
-git clone git@github.com:Lasagnese/actual_name.git && cd actual_name
+git clone git@github.com:lucadibello/movers-sat-problem.git && cd movers-sat-problem
 # With HTTPS
-git clone https://github.com/lucadibello/actual_name.git && cd actual_name
+git clone https://github.com/lucadibello/movers-sat-problem.git && cd movers-sat-problem
 ```
 
 ## Step 2: Install python requirements
