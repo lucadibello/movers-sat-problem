@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 import os
 
-from modules.util.singleton import Singleton
+from modules.utils.singleton import Singleton
 
 
 class Logger(metaclass=Singleton):
@@ -29,7 +29,7 @@ class Logger(metaclass=Singleton):
 
         # Create a file handler which logs even debug messages
         fh = logging.FileHandler(filename)
-        fh.setLevel(logging.DEBUG) # Log everything to the file
+        fh.setLevel(logging.DEBUG)  # Log everything to the file
 
         # Create a console handler which logs messages to the console
         ch = logging.StreamHandler()
