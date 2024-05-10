@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import dotenv_values
-from modules.models.api import Forniture
+from modules.utils.validators import validate_forniture
+from modules.models.api import Forniture, build_response
 from modules.solver.movers import solve_problem
 from modules.utils.logger import Logger
 
@@ -19,10 +20,6 @@ frontend_url = config.get("FRONTEND_URL")
 api_version = config.get("API_VERSION")
 debug_mode = config.get("DEBUG", False)
 
-# Cast API version to an integer
-if api_version:
-    api_version = int(api_version)
-
 # Cast debug mode to a boolean
 debug_mode = str(debug_mode).lower() == "true"
 
@@ -31,7 +28,13 @@ if not frontend_url or not api_version:
     raise ValueError("FRONTEND_URL and API_VERSION must be set in .env file")
 
 # Create entrypoint
-app = FastAPI(response_class=ORJSONResponse, debug=debug_mode)
+app = FastAPI(
+    title="Movers-sat-solver API",
+    description="Ths API is used to solve the Movers SAT problem",
+    version=api_version,
+    response_class=ORJSONResponse,
+    debug=debug_mode,
+)
 origins = [frontend_url]
 app.add_middleware(
     CORSMiddleware,
@@ -44,16 +47,28 @@ app.add_middleware(
 
 
 # URL: /api/v#/hello-world
-@app.get(api_route(api_version, "hello-world"))
+@app.get(api_route(int(api_version), "hello-world"))
 async def helloWorldRoute():
     return ORJSONResponse({"message": "Hello from from FastAPI backend!"})
 
 
 # URL: /api/v#/hello-world
-@app.post(api_route(api_version, "solve"))
+@app.post(api_route(int(api_version), "solve"))
 async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
+    # Validate forniture floors
+    status = validate_forniture(n_floors, forniture)
+    if not status:
+        return ORJSONResponse(
+            build_response(
+                success=False,
+                message="Invalid forniture name or floor. The name must be a non-empty alphanumeric string and the floor must be an integer from 0 to n_floors-1",
+            )
+        )
+
     # Start solver with the data
-    Logger().info(f"Received data: {n_movers}, {n_floors}, {forniture}")
+    Logger().info(
+        f"Received problem instance: n_movers={n_movers}, n_floors={n_floors}, forniture={forniture}"
+    )
     result = solve_problem(n_movers, n_floors, forniture)
     Logger().info(f"Solver result: {result}")
 
