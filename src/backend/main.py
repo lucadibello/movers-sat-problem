@@ -55,6 +55,14 @@ async def helloWorldRoute():
 # URL: /api/v#/hello-world
 @app.post(api_route(int(api_version), "solve"))
 async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
+    # Ensure that both n_movers and n_floors are positive integers
+    if n_movers < 1 or n_floors < 1:
+        return ORJSONResponse(
+            build_response(
+            success=False,
+            message="n_movers and n_floors must be positive integers",
+            )
+        )
     # Validate forniture floors
     status = validate_forniture(n_floors, forniture)
     if not status:
