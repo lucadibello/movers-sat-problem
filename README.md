@@ -169,5 +169,5 @@ This is the structure of a call to the `/solve` endpoint on the backend started 
 ```bash
 curl -X POST -H "Content-Type: application/json"
       --data '{"max_t": 10, "forniture": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
-      http://localhost:5000/solve
+      http://localhost:5000/solve?m=2&n=5?max_t=10
 ```
