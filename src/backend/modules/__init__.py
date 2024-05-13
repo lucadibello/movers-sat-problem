@@ -1,1 +1,1 @@
-from .models import Forniture
+from .models.api import Forniture
