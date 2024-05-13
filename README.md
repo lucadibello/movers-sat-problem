@@ -130,8 +130,6 @@ This section describes how the actions of the movers alter the state of the syst
 
   $\forall t \in T,\ l \in L, m_i \in M, f_j \in F: carry(m_i, f_j, t)$ and $atFloor(m_i, l, t) \land \lnot atFloorForniture(f_j, l, t) = \bot$
 
-  FIXME: Continue from here!!
-
 > Already enforced by the `carry` action definition.
 
 - A mover cannot ascend from the last floor (no more floors available)
