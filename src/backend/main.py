@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import dotenv_values
 from modules.utils.validators import validate_forniture
 from modules.models.api import Forniture, build_response
-from modules.solver.movers import solve_problem
+from modules.solver.movers import MoversSolver
 from modules.utils.logger import Logger
 
 
@@ -59,8 +59,8 @@ async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
     if n_movers < 1 or n_floors < 1:
         return ORJSONResponse(
             build_response(
-            success=False,
-            message="n_movers and n_floors must be positive integers",
+                success=False,
+                message="n_movers and n_floors must be positive integers",
             )
         )
     # Validate forniture floors
@@ -77,7 +77,10 @@ async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
     Logger().info(
         f"Received problem instance: n_movers={n_movers}, n_floors={n_floors}, forniture={forniture}"
     )
-    result = solve_problem(n_movers, n_floors, forniture)
+
+    # Create movers problem instance
+    problem = MoversSolver(n=n_movers, m=n_floors, forniture=forniture)
+    result = problem.solve()
     Logger().info(f"Solver result: {result}")
 
     # Solve the movers sat problem using z3-solver
