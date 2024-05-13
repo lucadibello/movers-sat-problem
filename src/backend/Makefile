@@ -1,6 +1,8 @@
+.PHONY: dev
 dev:
 	uvicorn main:app --reload --port 8000 --host 0.0.0.0
 
+.PHONY: start
 start:
 	uvicorn main:app --port 8000 --host 0.0.0.0
 
@@ -12,7 +14,6 @@ checker:
 build-index:
 	python3 build-index.py
 
-.PHONY: export
 export:
 	@echo "Exporting environment.yml..."
 	@conda env export --no-builds -f environment.yml
