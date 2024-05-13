@@ -18,14 +18,23 @@ config = dotenv_values(".env")
 # Load API version + frontend URL for CORS
 frontend_url = config.get("FRONTEND_URL")
 api_version = config.get("API_VERSION")
-debug_mode = config.get("DEBUG", False)
+is_debug_mode = config.get("DEBUG", False)
 
 # Cast debug mode to a boolean
-debug_mode = str(debug_mode).lower() == "true"
+is_debug_mode = str(is_debug_mode).lower() == "true"
 
 # Ensure that both the frontend URL and API version are set
 if not frontend_url or not api_version:
     raise ValueError("FRONTEND_URL and API_VERSION must be set in .env file")
+
+# First, intialize the logger singleton
+Logger(debug=is_debug_mode)
+
+# Now, log the loaded frontend URL and API version
+if is_debug_mode:
+    Logger().info("Loaded environment variables from .env:")
+    Logger().info(f"- FRONTEND_URL: {frontend_url}")
+    Logger().info(f"- API_VERSION: {api_version}")
 
 # Create entrypoint
 app = FastAPI(
@@ -33,7 +42,7 @@ app = FastAPI(
     description="Ths API is used to solve the Movers SAT problem",
     version=api_version,
     response_class=ORJSONResponse,
-    debug=debug_mode,
+    debug=is_debug_mode,
 )
 origins = [frontend_url]
 app.add_middleware(
