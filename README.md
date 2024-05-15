@@ -104,6 +104,10 @@ This section describes how the actions of the movers alter the state of the syst
 
 ### 2.3. Constraints
 
+- If a forniture is not carried by anyone, it stays in the same floors
+
+$\textcolor{red}{DA \\AGGIUNGERE!!!!}$
+
 - Each mover is exactly at one floor at a time
 
   $\forall t \in T,\ m_i \in M: \sum_{l_j \in L} atFloor(m_i, l_j, t) = 1$
