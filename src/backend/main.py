@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import dotenv_values
 from modules.utils.validators import validate_forniture
 from modules.models.api import Forniture, build_response
-from modules.solver.movers import MoversSolver
+from modules.solver.movers_first_task import MoversSolver as MoverFirstTaskSolver
 from modules.utils.logger import Logger
 
 
@@ -88,7 +88,7 @@ async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
     )
 
     # Create movers problem instance
-    problem = MoversSolver(n=n_movers, m=n_floors, forniture=forniture)
+    problem = MoverFirstTaskSolver(n=n_movers, m=n_floors, forniture=forniture)
     result = problem.solve()
     Logger().info(f"Solver result: {result}")
 

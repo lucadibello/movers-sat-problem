@@ -1,6 +1,3 @@
-# Import z3 prover
-from z3 import *
-
 # The following exercises concern encoding of the movers problem: Your moving company is
 # given a task to carry all furniture of a building with n floors with a team of m people to the
 # ground floor. An example configuration for m = n = 3 is given in Fig. 1. Each person is capable
@@ -24,39 +21,88 @@ from z3 import *
 # it is possible to reach the final position
 # atFloor(Joe, 2, 2), atFloor(Bill, 2, 2), atFloor(Mia, 2, 2).
 # Use the setting m = n = 3 again
-from ..modules.models import Forniture
+from typing import Dict
+from z3 import Bool, Solver, Implies, Not, Int
+
+
+class Forniture:
+    def __init__(self, name: str, floor: int) -> None:
+        self._name = name
+        self._floor = floor
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def floor(self):
+        return self._floor
+
+
+# Some prefixes for the variables/constraint names
+AT_FLOOR_PREFIX = "atFloor"
+AT_FLOOR_FORNITURE_PREFIX = "atFloorForniture"
+ASCEND_PREFIX = "ascend"
+DESCEND_PREFIX = "descend"
+CARRY_PREFIX = "carry"
 
 # Define the number of floors and movers
 m: int = 3
 n: int = 3
-
-# FIXME: t is a variable given by the user
 max_t = 10
 
 # Create list of movers
-movers = ['Joe', 'Bill', 'Mia']
+movers = ["Joe", "Bill", "Mia"]
 floors = [0, 1, 2]
 forniture = [
-    Forniture('flowerpot', 1),
-    Forniture('chair', 0),
-    Forniture('piano', 0),
-    Forniture('table', 1),
-    Forniture('sofa', 1),
+    Forniture(name="table", floor=1),
+    Forniture(name="chair", floor=0),
 ]
 
 # Create a list of all the variables representing the state of the movers
 # at a given time ()
 s = Solver()
 
-# Create a list of variables representing the state of the movers at a given time
-atFloor = dict[str, dict[int, Bool]]()
+AtFloor = Dict[str, Dict[int, Dict[int, Bool]]]
+
+# Create important variables
+atFloor: AtFloor = {}
+atFloorForniture: AtFloor = {}
 for mover in movers:
     for floor in floors:
         for time in range(max_t):
+            # Build nested dictionary
+            atFloor[mover] = {}
+            atFloor[mover][floor] = {}
+
+            # Create + register the variable
             atFloor[mover][floor][time] = Bool(
-                f'{mover}_atFloor_{floor}_{time}'
+                f"{mover}_{AT_FLOOR_PREFIX}_{floor}_{time}"
             )
             s.add(atFloor[mover][floor][time])
+
+            # TODO: Ascend, descend
+
+for f in forniture:
+    for floor in floors:
+        for time in range(max_t):
+            # Build nested dictionary
+            atFloorForniture[f.name] = {}
+            atFloorForniture[f.name][floor] = {}
+
+            atFloorForniture[f.name][floor][time] = Bool(
+                f"{f.name}_{AT_FLOOR_FORNITURE_PREFIX}_{floor}_{time}"
+            )
+            # register varaible in solver
+            s.add(atFloorForniture[f.name][floor][time])
+
+# TODO: Create variables for carry!
+
+# Print all the variables of the solver
+for var in s.assertions():
+    print(var)
+
+exit()
 
 # Model each action as a boolean variable
 ascend = dict[str, Int]()
@@ -64,9 +110,9 @@ descend = dict[str, Int]()
 carry = dict[str, Int]()
 for mover in movers:
     for time in range(max_t):
-        ascend[mover] = Bool(f'{mover}_ascend_{time}')
-        descend[mover] = Bool(f'{mover}_descend_{time}')
-        carry[mover] = Bool(f'{mover}_carry_{time}')
+        ascend[mover] = Bool(f"{mover}_ascend_{time}")
+        descend[mover] = Bool(f"{mover}_descend_{time}")
+        carry[mover] = Bool(f"{mover}_carry_{time}")
         s.add(ascend[mover], descend[mover], carry[mover])
 
 # Model also the effect of the actions on the state of the movers
@@ -76,8 +122,7 @@ for mover in movers:
         for floor in floors:
             s.add(Implies(ascend[mover], atFloor[mover][floor + 1][time + 1]))
             s.add(Implies(descend[mover], atFloor[mover][floor - 1][time + 1]))
-            s.add(Implies(carry[mover, floor],
-                  atFloor[mover][floor-1][time + 1]))
+            s.add(Implies(carry[mover, floor], atFloor[mover][floor - 1][time + 1]))
 
             # at time 0, the movers are in the ground floor
             if time == 0:
