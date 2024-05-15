@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/anaconda:0-3
 
-COPY ./environment.yml /tmp/environment.yml
+COPY ./src/backend/environment.yml /tmp/environment.yml
 
 # Create environment from file
 RUN /opt/conda/bin/conda env create -f /tmp/environment.yml
