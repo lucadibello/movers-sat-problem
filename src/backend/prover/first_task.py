@@ -23,23 +23,56 @@ times = [t for t in range(max_t)]
 #                           VARIABLES
 # #################################################################
 
+variables = {}  # dictionary mapping variable name to Bool
 
-# Functions that generate the boolean variables
+# functions that give string representation of variables
+
+def atFloorFormat(m, l, t):
+    return f"atFloor({m},{l},{t})"
+
+def atFloorFornitureFormat(f, l, t):
+    return f"atFloorForniture({f},{l},{t})"
+
+def ascendFormat(m, t):
+    return f"ascend({m},{t})"
+
+def descendFormat(m, t):
+    return f"descend({m},{t})"
+
+def carryFormat(m, f, t):
+    return f"carry({m},{f},{t})"
+
+
+# generate variables
+for t in range(max_t):
+    for m in movers:
+        variables[ascendFormat(m, t)] = Bool(ascendFormat(m, t))
+        variables[descendFormat(m, t)] = Bool(descendFormat(m, t))
+        for l in floors:
+            variables[atFloorFormat(m, l, t)] = Bool(atFloorFormat(m, l, t))
+        for f in forniture:
+            variables[carryFormat(m, f, t)] = Bool(carryFormat(m, f, t))
+    for f in forniture:
+        for l in floors:
+            variables[atFloorFornitureFormat(f, l, t)] = Bool(atFloorFornitureFormat(f, l, t))
+
+
+# Functions that retreive the corresponding variable
 
 def atFloor(m, l, t):
-    return Bool(f"atFloor({m},{l},{t})")
+    return variables[atFloorFormat(m, l, t)]
 
 def atFloorForniture(f, l, t):
-    return Bool(f"atFloorForniture({f},{l},{t})")
+    return variables[atFloorFornitureFormat(f, l, t)]
 
 def ascend(m, t):
-    return Bool(f"ascend({m},{t})")
+    return variables[ascendFormat(m, t)]
 
 def descend(m, t):
-    return Bool(f"descend({m},{t})")
+    return variables[descendFormat(m, t)]
 
 def carry(m, f, t):
-    return Bool(f"carry({m},{f},{t})")
+    return variables[carryFormat(m, f, t)]
 
 
 # #################################################################
@@ -113,7 +146,7 @@ for t in range(max_t - 1):
                 And(
                     Not(Or(ascend(m, t), descend(m, t))),
                     Not(Or([carry(m, f, t) for f in forniture])), 
-                    atFloor(f, l, t)),
+                    atFloor(m, l, t)),
                 atFloor(m, l, t + 1)
             ))
 
@@ -172,25 +205,33 @@ for t in times:
             s.add(Implies(atFloorForniture(f, 0, t), Not(carry(m, f, t))))
 
 
-# check satisfability
+
+# #################################################################
+#                           SOLUTION
+# #################################################################
+
 if s.check() == sat:
-    print("Satisfiable: There is a solution.")
-    m = s.model()
-    for t in range(max_t):
-        for p in movers:
-            if m.evaluate(ascend(p, t)):
-                print(f"ascend({p}, {t})")
-            if m.evaluate(descend(p, t)):
-                print(f"descend({p}, {t})")
+    print("Satisfiable\n")
+    model = s.model()
+    
+    for t in times:
+        print(f"Time {t}:")
+        for m in movers:
             for l in floors:
-                if m.evaluate(atFloor(p, l, t)):
-                    print(f"atFloor({p}, {l}, {t})")
+                if model.evaluate(atFloor(m, l, t)):
+                    print(f"  {m} is at floor {l}")
+            if model.evaluate(ascend(m, t)):
+                print(f"  {m} ascends")
+            if model.evaluate(descend(m, t)):
+                print(f"  {m} descends")
             for f in forniture:
-                if m.evaluate(carry(p, f, t)):
-                    print(f"carry({p}, {f}, {t})")
+                if model.evaluate(carry(m, f, t)):
+                    print(f"  {m} carries {f}")
         for f in forniture:
             for l in floors:
-                if m.evaluate(atFloorForniture(f, l, t)):
-                    print(f"atFloorForniture({f}, {l}, {t})")
+                if model.evaluate(atFloorForniture(f, l, t)):
+                    print(f"  {f} is at floor {l}")
+        print()
 else:
-    print("Unsatisfiable: No solution exists.")
+    print("Unsatsfiable\n")
+
