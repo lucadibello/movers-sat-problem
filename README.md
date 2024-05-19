@@ -30,12 +30,13 @@ When a mover is at the same floor as a piece of forniture, and decides to carry 
 
 From the problem description, the following constraints can be identified:
 
-1. Each mover can either move up or down one floor at a time, or stay in the same floor.
-2. Each mover can carry at most one piece of forniture at a time. To carry a piece of forniture, the mover must be at the same floor as the forniture.
-3. The carrying of forniture by the movers is not mandatory. A mover can move to a different floor without carrying any forniture.
-4. At ground floor, the movers can only ascend to the first floor, as there are no floors below the ground floor.
-5. Movers are not allowed to carry forniture that is already at the ground floor.
-6. The movers and the forniture must be at the ground floor at maximum time step $max_t$. If they are able to reach the ground floor before $max_t$, the problem is considered also solved.
+1. The movers start at floor 0
+2. Each mover can either move up or down one floor at a time, or stay in the same floor.
+3. Each mover can carry at most one piece of forniture at a time. To carry a piece of forniture, the mover must be at the same floor as the forniture.
+4. The carrying of forniture by the movers is not mandatory. A mover can move to a different floor without carrying any forniture.
+5. At ground floor, the movers can only ascend to the first floor, as there are no floors below the ground floor.
+6. Movers are not allowed to carry forniture that is already at the ground floor.
+7. The movers and the forniture must be at the ground floor at maximum time step $max_t$. If they are able to reach the ground floor before $max_t$, the problem is considered also solved.
 
 ## 2. Mathematical representation
 
@@ -104,13 +105,21 @@ This section describes how the actions of the movers alter the state of the syst
 
 ### 2.3. Constraints
 
-- If a forniture is not carried by anyone, it stays in the same floors
+- Initial constrant: movers start at the ground floor
 
-$\textcolor{red}{DA \\AGGIUNGERE!!!!}$
+$\textcolor{red}{TODO!!!!}$
+
+- Final constrant: movers end at the ground floor
+
+$\textcolor{red}{TODO!!!!}$
 
 - Each mover is exactly at one floor at a time
 
   $\forall t \in T,\ m_i \in M: \sum_{l_j \in L} atFloor(m_i, l_j, t) = 1$
+
+- Each forniture is exactly at one floor at a time
+
+$\textcolor{red}{TODO!!!!}$
 
 - Each mover can only ascend or descend at a time
 
@@ -120,11 +129,14 @@ $\textcolor{red}{DA \\AGGIUNGERE!!!!}$
 
   $\forall t \in T,\ m_i \in M: \sum_{f_j \in F} carry(m_i, f_j, t) \leq 1$
 
-- A mover cannot carry an item which (at the moment) is being carried by another mover
+- Each piece of forniture can be carried by at most one mover
 
-  $\forall t \in T,\ \lbrace m_i, m_j \rbrace \in M,\ f_j \in F: carry(m_i, f_j, t) \land carry(m_j, f_j, t) \implies m_i = m_j$
+$\textcolor{red}{TODO!!!!}$
 
-> Note: If two movers are carrying the same piece of forniture at the same time, the only possible explanation is that $m_i$ and $m_j$ are the same mover.
+- If a forniture is not carried by anyone, it stays in the same floors
+
+$\textcolor{red}{TODO!!!!}$
+
 
 - A mover cannot carry an item which is already at the ground floor
 

@@ -22,21 +22,7 @@
 # atFloor(Joe, 2, 2), atFloor(Bill, 2, 2), atFloor(Mia, 2, 2).
 # Use the setting m = n = 3 again
 from typing import Dict
-from z3 import Bool, Solver, Implies, Not, Int
-
-
-class Forniture:
-    def __init__(self, name: str, floor: int) -> None:
-        self._name = name
-        self._floor = floor
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def floor(self):
-        return self._floor
+from z3 import Bool, Solver, Implies, Not, Or, And, sat
 
 
 # Some prefixes for the variables/constraint names
@@ -46,6 +32,10 @@ ASCEND_PREFIX = "ascend"
 DESCEND_PREFIX = "descend"
 CARRY_PREFIX = "carry"
 
+# #################################################################
+#                           INPUTS
+# #################################################################
+
 # Define the number of floors and movers
 m: int = 3
 n: int = 3
@@ -54,98 +44,174 @@ max_t = 10
 # Create list of movers
 movers = ["Joe", "Bill", "Mia"]
 floors = [0, 1, 2]
-forniture = [
-    Forniture(name="table", floor=1),
-    Forniture(name="chair", floor=0),
-]
+forniture = ["table", "chair"]
+forniture_initial_level = [1, 2]
+times = [t for t in range(max_t)]
 
-# Create a list of all the variables representing the state of the movers
-# at a given time ()
+
+# #################################################################
+#                           VARIABLES
+# #################################################################
+
+
+# Functions that generate the boolean variables
+
+def atFloor(m, l, t):
+    return Bool(f"atFloor({m},{l},{t})")
+
+def atFloorForniture(f, l, t):
+    return Bool(f"atFloorForniture({f},{l},{t})")
+
+def ascend(m, t):
+    return Bool(f"ascend({m},{t})")
+
+def descend(m, t):
+    return Bool(f"descend({m},{t})")
+
+def carry(m, f, t):
+    return Bool(f"descend({m},{f},{t})")
+
+
+# #################################################################
+#                           ACTIONS
+# #################################################################
+
+
 s = Solver()
 
-AtFloor = Dict[str, Dict[int, Dict[int, Bool]]]
+# Ascend: 
+#  a mover can move up one floor at a time if it's not at the last floor
+for t in times:
+    for m in movers:
+        for l in floors:
+            if l < n:
+                s.add(Implies(
+                    And(atFloor(m, l, t), ascend(m, t)),
+                    atFloor(m, l+1, t+1)
+                ))
 
-# Create important variables
-atFloor: AtFloor = {}
-atFloorForniture: AtFloor = {}
-for mover in movers:
-    for floor in floors:
-        for time in range(max_t):
-            # Build nested dictionary
-            atFloor[mover] = {}
-            atFloor[mover][floor] = {}
+# Descend: 
+#  a mover can move down one floor at a time if it's not at the ground floor
+for t in times:
+    for m in movers:
+        for l in floors:
+            if l > 0:
+                s.add(Implies(
+                    And(atFloor(m, l, t), descend(m, t)),
+                    atFloor(m, l-1, t+1)
+                ))
 
-            # Create + register the variable
-            atFloor[mover][floor][time] = Bool(
-                f"{mover}_{AT_FLOOR_PREFIX}_{floor}_{time}"
-            )
-            s.add(atFloor[mover][floor][time])
+# Carry: 
+#  a mover can carry a piece of forniture if it is at the same floor as the mover (and not at ground floor). 
+# At the next time step, the mover and the forniture will be at the floor below:
+for t in times:
+    for m in movers:
+        for f in forniture:
+            for l in floors:
+                if l > 0:
+                    s.add(Implies(
+                        And(
+                            And(atFloor(m, l, t), atFloorForniture(f, l)),
+                            carry(m, f, t)
+                        ),
+                        And(
+                            atFloor(m, l-1, t+1),
+                            atFloorForniture(f, l-1, t+1)
+                        )
+                    ))
 
-            # TODO: Ascend, descend
 
-for f in forniture:
-    for floor in floors:
-        for time in range(max_t):
-            # Build nested dictionary
-            atFloorForniture[f.name] = {}
-            atFloorForniture[f.name][floor] = {}
 
-            atFloorForniture[f.name][floor][time] = Bool(
-                f"{f.name}_{AT_FLOOR_FORNITURE_PREFIX}_{floor}_{time}"
-            )
-            # register varaible in solver
-            s.add(atFloorForniture[f.name][floor][time])
 
-# TODO: Create variables for carry!
+# #################################################################
+#                           CONSTRAINTS
+# #################################################################
 
-# Print all the variables of the solver
-for var in s.assertions():
-    print(var)
+# Initial constraint: movers start at the grounf floor
+for m in movers:
+    s.add(atFloor(m, 0, 0))
 
-exit()
+# Final constraint: movers end at the ground floor at max_t
+for m in movers:
+    s.add(atFloor(m, 0, max_t))
 
-# Model each action as a boolean variable
-ascend = dict[str, Int]()
-descend = dict[str, Int]()
-carry = dict[str, Int]()
-for mover in movers:
-    for time in range(max_t):
-        ascend[mover] = Bool(f"{mover}_ascend_{time}")
-        descend[mover] = Bool(f"{mover}_descend_{time}")
-        carry[mover] = Bool(f"{mover}_carry_{time}")
-        s.add(ascend[mover], descend[mover], carry[mover])
+# Each mover is exactly at one floor at each time
+for t in times:
+    for m in movers:
+        # mover is at least at one floor
+        s.add(Or([atFloor(m, f, t) for f in floors]))
+        for f1 in floors:
+            for f2 in floors:
+                if f1 != f2:
+                    # mover is not at more than one floor
+                    s.add(Implies(atFloor(m, f1, t), Not(atFloor(m, f2, t))))
 
-# Model also the effect of the actions on the state of the movers
-# at a given time
-for mover in movers:
-    for time in range(max_t):
-        for floor in floors:
-            s.add(Implies(ascend[mover], atFloor[mover][floor + 1][time + 1]))
-            s.add(Implies(descend[mover], atFloor[mover][floor - 1][time + 1]))
-            s.add(Implies(carry[mover, floor], atFloor[mover][floor - 1][time + 1]))
+# Each forniture is exactly at one floor at each time
+for t in times:
+    for f in forniture:
+        # forniture is at least at one floor
+        s.add(Or([atFloorForniture(f, l, t) for l in floors]))
+        for l1 in floors:
+            for l2 in floors:
+                if l1 != l2:
+                    # forniture is not at more than one floor
+                    s.add(Implies(atFloor(f, l1, t), Not(atFloor(f, l2, t))))
 
-            # at time 0, the movers are in the ground floor
-            if time == 0:
-                s.add(atFloor[mover][0][0])
+# Each mover can do only one action at a time
+for t in times:
+    for m in movers:
+        s.add(Implies(ascend(m, t), Not(descend(m, t))))
+        s.add(Implies(descend(m, t), Not(ascend(m, t))))
+        for f in forniture:
+            s.add(Implies(ascend(m, t), Not(carry(m, f, t))))
+            s.add(Implies(descend(m, t), Not(carry(m, f, t))))
+            s.add(Implies(carry(m, t), Not(ascend(m, f, t))))
+            s.add(Implies(carry(m, t), Not(descend(m, f, t))))
 
-            if floor == 0:
-                s.add(Not(descend[mover]))
-                s.add(Not(carry[mover, floor]))
-            if floor == m:
-                s.add(Not(ascend[mover]))
-                s.add(Not(carry[mover, floor]))
+# Each forniture can be carried by at most one mover
+for t in times:
+    for f in forniture:
+        for m1 in movers:
+                for m2 in movers:
+                    if m1 != m2:
+                        s.add(Implies(carry(m1, f, t), Not(atFloor(m2, f, t))))
 
-# Add the initial and final conditions
+# Each mover can carry at most one piece of forniture
+for t in times:
+    for m in movers:
+        for f1 in forniture:
+                for f2 in forniture:
+                    if f1 != f2:
+                        s.add(Implies(carry(m, f1, t), Not(atFloor(m, f2, t))))
 
-# 1) All movers are in the ground floor at time 0 and
-# they cannot be in any other floor
-for mover in movers:
-    for time in range(max_t):
-        if time == 0:
-            s.add(atFloor[mover][0][0])
-        else:
-            s.add(Not(atFloor[mover][0][time]))
+# If a forniture is not carried by anyone, it stays in the same floors
+for t in times:
+    for f in forniture:
+        for m in movers:
+            for l in floors:
+                s.add(Implies(
+                    And(Not(carry(m, f, t)), atFloorForniture(f, l, t)), 
+                    atFloorForniture(f, l, t+1)
+                ))
 
-# 2) At time t, all movers are at the start state
-for mover in movers:
-    s.add(atFloor[mover][0][max_t])
+# A mover cannot carry an item which is already at the ground floor
+for t in times:
+    for m in movers:
+        for f in forniture:
+            s.add(Implies(atFloorForniture(f, 0, t), Not(carry(m, f, t))))
+
+
+# check satisfability
+if s.check() == sat:
+    print("Satisfiable: There is a solution.")
+    m = s.model()
+    for t in range(max_t + 1):
+       for l in floors:
+            for p in movers:
+                if m.evaluate(atFloor(p, l, t)):
+                    print(f"mover {p} is at floor {l} at time {t}")
+            for f in forniture:
+                if m.evaluate(atFloorForniture(f, l, t)):
+                    print(f"forniture{f} is at floor {l} at time {t}")
+else:
+    print("Unsatisfiable: No solution exists.")
