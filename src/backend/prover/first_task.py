@@ -9,14 +9,13 @@ from z3 import Bool, Solver, Implies, Not, Or, And, sat
 # Define the number of floors and movers
 m: int = 3
 n: int = 3
-max_t = 10
+max_t = 7
 
 # Create list of movers
 movers = ["Joe", "Bill", "Mia"]
 floors = [0, 1, 2]
-forniture = ["table", "chair"]
-forniture_initial_level = [2, 2]
-times = [t for t in range(max_t)]
+forniture = ["table", "chair", "plant"]
+forniture_initial_level = [2, 2, 1]
 
 
 # #################################################################
@@ -44,7 +43,7 @@ def carryFormat(m, f, t):
 
 
 # generate variables
-for t in range(max_t):
+for t in range(max_t + 1):
     for m in movers:
         variables[ascendFormat(m, t)] = Bool(ascendFormat(m, t))
         variables[descendFormat(m, t)] = Bool(descendFormat(m, t))
@@ -83,24 +82,24 @@ def carry(m, f, t):
 s = Solver()
 
 # Ascend:
-for t in range(max_t - 1):
+for t in range(max_t):
     for m in movers:
         for l in floors:
             if l < n - 1:
                 s.add(Implies(And(ascend(m, t), atFloor(m, l, t)), atFloor(m, l + 1, t + 1)))
 
 # Descend:
-for t in range(max_t - 1):
+for t in range(max_t):
     for m in movers:
         for l in floors:
             if l > 0:
                 s.add(Implies(And(descend(m, t), atFloor(m, l, t)), atFloor(m, l - 1, t + 1)))
 
 # Carry:
-for t in range(max_t - 1):
+for t in range(max_t):
     for m in movers:
-        for l in floors:
-            for f in forniture:
+        for f in forniture:
+            for l in floors:
                 if l > 0:
                     s.add(Implies(
                         And(carry(m, f, t), atFloor(m, l, t), atFloorForniture(f, l, t)), 
@@ -128,7 +127,7 @@ for f in forniture:
     s.add(atFloorForniture(f, 0, max_t - 1))
 
 # Each mover is exactly at one floor at each time
-for t in times:
+for t in range(max_t):
     for m in movers:
         # mover is at least at one floor
         s.add(Or([atFloor(m, f, t) for f in floors]))
@@ -151,7 +150,7 @@ for t in range(max_t - 1):
             ))
 
 # Each forniture is exactly at one floor at each time
-for t in times:
+for t in range(max_t):
     for f in forniture:
         # forniture is at least at one floor
         s.add(Or([atFloorForniture(f, l, t) for l in floors]))
@@ -162,7 +161,7 @@ for t in times:
                     s.add(Implies(atFloorForniture(f, l1, t), Not(atFloorForniture(f, l2, t))))
 
 # Each mover can do only one action at a time
-for t in times:
+for t in range(max_t):
     for m in movers:
         s.add(Implies(ascend(m, t), Not(descend(m, t))))
         s.add(Implies(descend(m, t), Not(ascend(m, t))))
@@ -173,7 +172,7 @@ for t in times:
             s.add(Implies(carry(m, f, t), Not(descend(m, t))))
 
 # Each forniture can be carried by at most one mover
-for t in times:
+for t in range(max_t):
     for f in forniture:
         for m1 in movers:
             for m2 in movers:
@@ -182,7 +181,7 @@ for t in times:
     
 
 # Each mover can carry at most one piece of forniture
-for t in times:
+for t in range(max_t):
     for m in movers:
         for f1 in forniture:
             for f2 in forniture:
@@ -199,10 +198,32 @@ for t in range(max_t - 1):
             ))
 
 # A mover cannot carry an item which is already at the ground floor
-for t in times:
+for t in range(max_t):
     for m in movers:
         for f in forniture:
             s.add(Implies(atFloorForniture(f, 0, t), Not(carry(m, f, t))))
+
+# A mover has to be on the same floor as an item in order to carry it
+for t in range(max_t):
+    for m in movers:
+        for f in forniture:
+            for l1 in floors:
+                for l2 in floors:
+                    if l1 != l2:
+                        s.add(Implies(
+                            And(atFloorForniture(f, l1, t), atFloor(m, l2, t)),
+                            Not(carry(m, f, t))
+                        ))
+
+# movers cannot ascend if they are at the top floor
+for t in range(max_t):
+    for m in movers:
+        s.add(Implies(atFloor(m, n-1, t), Not(ascend(m, t))))
+
+# movers cannot descend if they are at the ground floor
+for t in range(max_t):
+    for m in movers:
+        s.add(Implies(atFloor(m, 0, t), Not(descend(m, t))))
 
 
 
@@ -214,7 +235,7 @@ if s.check() == sat:
     print("Satisfiable\n")
     model = s.model()
     
-    for t in times:
+    for t in range(max_t):
         print(f"Time {t}:")
         for m in movers:
             for l in floors:
