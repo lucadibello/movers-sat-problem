@@ -13,10 +13,15 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 - [2. Mathematical representation](#2-mathematical-representation)
   - [2.1. Sets / Domains](#21-sets--domains)
   - [2.2. Data](#22-data)
-  - [2.3. Mathematical model](#23-mathematical-model)
-  - [2.4. Input data format](#24-input-data-format)
+    - [2.2.1. Input parameters](#221-input-parameters)
+    - [2.2.2. Variables describing the state of the system](#222-variables-describing-the-state-of-the-system)
+    - [2.2.2. Variables describing actions of the movers on the system](#222-variables-describing-actions-of-the-movers-on-the-system)
+- [2.3. Action definitions](#23-action-definitions)
+  - [2.3. Constraints](#23-constraints)
 - [3. Getting started](#3-getting-started)
-- [4. Solution](#4-solution)
+- [4. System design](#4-system-design)
+  - [4.1. Frontend - User Interface](#41-frontend---user-interface)
+  - [4.2. Backend - APIs and Solver](#42-backend---apis-and-solver)
 
 ## 1. Problem description
 
@@ -116,6 +121,10 @@ $\textcolor{red}{TODO!!!!}$
 - Each mover is exactly at one floor at a time
 
   $\forall t \in T,\ m_i \in M: \sum_{l_j \in L} atFloor(m_i, l_j, t) = 1$
+
+_ Each mover stays at the same floor if not ascending or descending
+
+$\textcolor{red}{TODO!!!!}$
 
 - Each forniture is exactly at one floor at a time
 
