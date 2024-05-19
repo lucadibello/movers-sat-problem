@@ -112,23 +112,23 @@ This section describes how the actions of the movers alter the state of the syst
 
 - Initial constrant: movers start at the ground floor
 
-$\textcolor{red}{TODO!!!!}$
+$\forall m_i \in M: atFloor(m_i, 0, 0) = 1$
 
 - Final constrant: movers end at the ground floor
 
-$\textcolor{red}{TODO!!!!}$
+$\forall m_i \in M , \ f_j in F: atFloor(m_i, 0, max_t) \land atFloorForniture(f_j, 0, max_t) = 1$
 
 - Each mover is exactly at one floor at a time
 
   $\forall t \in T,\ m_i \in M: \sum_{l_j \in L} atFloor(m_i, l_j, t) = 1$
 
-_ Each mover stays at the same floor if not ascending or descending
+- Each mover stays at the same floor if not ascending, descending, or carrying something
 
-$\textcolor{red}{TODO!!!!}$
+$\forall t \in T, \ m_i \in M \ l_j \in L, \ f_k \in F: atFloor(m_i, l_j, t) \land \lnot ascending(m_i, t) \land \lnot descending(m_i, t) \lnot carry(m_i, f_k, t) \implies atFloor(m_i, l_j, t + 1)$
 
 - Each forniture is exactly at one floor at a time
 
-$\textcolor{red}{TODO!!!!}$
+$\forall t \in T,\ f_i \in F: \sum_{l_j \in L} atFloorForniture(f_i, l_j, t) = 1$
 
 - Each mover can only ascend or descend at a time
 
@@ -140,11 +140,12 @@ $\textcolor{red}{TODO!!!!}$
 
 - Each piece of forniture can be carried by at most one mover
 
-$\textcolor{red}{TODO!!!!}$
+  $\forall t \in T,\ f_i \in F: \sum_{m_j \in M} carry(m_j, f_i, t) \leq 1$ 
 
-- If a forniture is not carried by anyone, it stays in the same floors
 
-$\textcolor{red}{TODO!!!!}$
+- If a forniture is not carried by anyone, it stays at the same floor
+
+$\forall t \in T,\ m_i \in M , \ l_j \in L, \ f_k \in F: atFloorForniture(f_k, l_j, t) \land \lnot carry(m_i, f_k, t) \implies atFloorForniture(f_k, l_j, t + 1)$
 
 
 - A mover cannot carry an item which is already at the ground floor
