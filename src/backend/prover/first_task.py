@@ -111,7 +111,7 @@ for t in times:
                 if l > 0:
                     s.add(Implies(
                         And(
-                            And(atFloor(m, l, t), atFloorForniture(f, l)),
+                            And(atFloor(m, l, t), atFloorForniture(f, l, t)),
                             carry(m, f, t)
                         ),
                         And(
@@ -119,9 +119,6 @@ for t in times:
                             atFloorForniture(f, l-1, t+1)
                         )
                     ))
-
-
-
 
 # #################################################################
 #                           CONSTRAINTS
@@ -173,8 +170,8 @@ for t in times:
         for f in forniture:
             s.add(Implies(ascend(m, t), Not(carry(m, f, t))))
             s.add(Implies(descend(m, t), Not(carry(m, f, t))))
-            s.add(Implies(carry(m, t), Not(ascend(m, f, t))))
-            s.add(Implies(carry(m, t), Not(descend(m, f, t))))
+            s.add(Implies(carry(m, f, t), Not(ascend(m, t))))
+            s.add(Implies(carry(m, f, t), Not(descend(m, t))))
 
 # Each forniture can be carried by at most one mover
 for t in times:
@@ -220,6 +217,6 @@ if s.check() == sat:
                     print(f"mover {p} is at floor {l} at time {t}")
             for f in forniture:
                 if m.evaluate(atFloorForniture(f, l, t)):
-                    print(f"forniture{f} is at floor {l} at time {t}")
+                    print(f"forniture {f} is at floor {l} at time {t}")
 else:
     print("Unsatisfiable: No solution exists.")
