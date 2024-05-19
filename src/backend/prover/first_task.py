@@ -25,13 +25,6 @@ from typing import Dict
 from z3 import Bool, Solver, Implies, Not, Or, And, sat
 
 
-# Some prefixes for the variables/constraint names
-AT_FLOOR_PREFIX = "atFloor"
-AT_FLOOR_FORNITURE_PREFIX = "atFloorForniture"
-ASCEND_PREFIX = "ascend"
-DESCEND_PREFIX = "descend"
-CARRY_PREFIX = "carry"
-
 # #################################################################
 #                           INPUTS
 # #################################################################
@@ -81,44 +74,43 @@ s = Solver()
 
 # Ascend: 
 #  a mover can move up one floor at a time if it's not at the last floor
-for t in times:
+for t in range(max_t - 1):
     for m in movers:
         for l in floors:
             if l < n:
                 s.add(Implies(
-                    And(atFloor(m, l, t), ascend(m, t)),
-                    atFloor(m, l+1, t+1)
-                ))
+                    ascend(m, t), 
+                    Implies(
+                        atFloor(m, l, t), 
+                        atFloor(m, l + 1, t + 1))))
+
+           
 
 # Descend: 
 #  a mover can move down one floor at a time if it's not at the ground floor
-for t in times:
+for t in range(max_t - 1):
     for m in movers:
         for l in floors:
             if l > 0:
                 s.add(Implies(
-                    And(atFloor(m, l, t), descend(m, t)),
-                    atFloor(m, l-1, t+1)
-                ))
+                    descend(m, t), 
+                    Implies(
+                        atFloor(m, l, t), 
+                        atFloor(m, l - 1, t + 1))))
 
 # Carry: 
 #  a mover can carry a piece of forniture if it is at the same floor as the mover (and not at ground floor). 
 # At the next time step, the mover and the forniture will be at the floor below:
-for t in times:
+for t in range(max_t - 1):
     for m in movers:
-        for f in forniture:
-            for l in floors:
+        for l in floors:
+            for f in forniture:
                 if l > 0:
                     s.add(Implies(
-                        And(
-                            And(atFloor(m, l, t), atFloorForniture(f, l, t)),
-                            carry(m, f, t)
-                        ),
-                        And(
-                            atFloor(m, l-1, t+1),
-                            atFloorForniture(f, l-1, t+1)
-                        )
-                    ))
+                        carry(m, f, t), 
+                        Implies(
+                            And(atFloor(m, l, t), atFloorForniture(f, l, t)), 
+                            And(atFloor(m, l - 1, t + 1), atFloorForniture(f, l - 1, t + 1)))))
 
 # #################################################################
 #                           CONSTRAINTS
@@ -210,13 +202,23 @@ for t in times:
 if s.check() == sat:
     print("Satisfiable: There is a solution.")
     m = s.model()
-    for t in range(max_t + 1):
-       for l in floors:
-            for p in movers:
+    for t in range(max_t):
+        for p in movers:
+            if m.evaluate(ascend(p, t)):
+                    print(f"ascend({p}, {t})")
+            if m.evaluate(descend(p, t)):
+                    print(f"descend({p}, {t})")
+            for l in floors:
                 if m.evaluate(atFloor(p, l, t)):
-                    print(f"mover {p} is at floor {l} at time {t}")
-            for f in forniture:
+                    print(f"atFloor({p}, {l}, {t})")
+                for f in forniture:
+                    if m.evaluate(carry(p, f, t)):
+                        print(f"carry({p}, {f}, {t})")
+        for f in forniture:
+            for l in floors:
                 if m.evaluate(atFloorForniture(f, l, t)):
-                    print(f"forniture {f} is at floor {l} at time {t}")
+                    print(f"atFloorForniture(({f}, {l}, {t})")
+                    
+            
 else:
     print("Unsatisfiable: No solution exists.")
