@@ -127,13 +127,21 @@ for t in times:
 #                           CONSTRAINTS
 # #################################################################
 
-# Initial constraint: movers start at the grounf floor
+# Initial constraint: movers start at the ground floor
 for m in movers:
     s.add(atFloor(m, 0, 0))
+
+# Initial constraint: forniture starts at the input floors
+for i in range(len(forniture)):
+    s.add(atFloorForniture(forniture[i], forniture_initial_level[i], 0))
 
 # Final constraint: movers end at the ground floor at max_t
 for m in movers:
     s.add(atFloor(m, 0, max_t))
+
+# Final constraint: all forniture end at the ground floor at max_t
+for f in forniture:
+    s.add(atFloorForniture(f, 0, max_t))
 
 # Each mover is exactly at one floor at each time
 for t in times:
