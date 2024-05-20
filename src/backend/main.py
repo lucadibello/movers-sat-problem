@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 from dotenv import dotenv_values
-from modules.utils.validators import validate_forniture
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
 from modules.models.api import Forniture, build_response
-from modules.solver.movers_first_task import MoversSolver as MoverFirstTaskSolver
+from modules.solver.solver import MoversSolver
 from modules.utils.logger import Logger
+from modules.utils.validators import validate_forniture
+from modules.models.solution import MoverCarryAction
 
 
 def api_route(version: int, route: str) -> str:
@@ -55,21 +56,24 @@ app.add_middleware(
 )
 
 
-# URL: /api/v#/hello-world
-@app.get(api_route(int(api_version), "hello-world"))
-async def helloWorldRoute():
-    return ORJSONResponse({"message": "Hello from from FastAPI backend!"})
-
-
-# URL: /api/v#/hello-world
+# URL: /api/v#/solve?n_movers=...&n_floors=...&max_steps=...
 @app.post(api_route(int(api_version), "solve"))
-async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
+async def solveRoute(
+    n_movers: int, n_floors: int, max_steps: int, forniture: list[Forniture]
+):
     # Ensure that both n_movers and n_floors are positive integers
     if n_movers < 1 or n_floors < 1:
         return ORJSONResponse(
             build_response(
                 success=False,
                 message="n_movers and n_floors must be positive integers",
+            )
+        )
+    # Ensure that max steps is a positive integer
+    if max_steps < 1:
+        return ORJSONResponse(
+            build_response(
+                success=False, message="max_steps must be a positive integer"
             )
         )
     # Validate forniture floors
@@ -84,13 +88,88 @@ async def solveRoute(n_movers: int, n_floors: int, forniture: list[Forniture]):
 
     # Start solver with the data
     Logger().info(
-        f"Received problem instance: n_movers={n_movers}, n_floors={n_floors}, forniture={forniture}"
+        f"Received problem instance: n={n_floors}, m={n_movers}, max_t={max_steps}, forniture={forniture}"
     )
 
     # Create movers problem instance
-    problem = MoverFirstTaskSolver(n=n_movers, m=n_floors, forniture=forniture)
-    result = problem.solve()
-    Logger().info(f"Solver result: {result}")
+    problem = MoversSolver(n=n_floors, m=n_movers, max_t=max_steps, forniture=forniture)
+    ids = problem.movers_ids()
 
-    # Solve the movers sat problem using z3-solver
-    return ORJSONResponse({"message": "Solve route!"})
+    # get the solution + get the states of the movers and forniture
+    solution = problem.solve()
+    if not solution:
+        Logger().error("Solver error: No solution found")
+        return ORJSONResponse(
+            build_response(success=False, message="No solution found.")
+        )
+    movers_states, forniture_states = solution.get_solution()
+
+    def build_action(state):
+        def build_data():
+            if isinstance(state._action, MoverCarryAction):
+                return {"forniture_name": state._action._forniture.name}
+            else:
+                return None
+
+        if state._action:
+            return {"type": state._action._action_type.value, "data": build_data()}
+        else:
+            return None
+
+    # For each time step, print the movers and forniture states
+    response = {
+        "total_steps": 0,
+        "movers_names": ids,
+        "forniture_names": [f.name for f in forniture],
+        "simulation_steps": [],
+    }
+
+    total_steps = 0
+    for t in movers_states.keys():
+        # Create response entry
+        entry = {"movers": [], "forniture": []}
+
+        all_ground = True
+        for state in forniture_states[t]:
+            entry["forniture"].append(
+                {
+                    "forniture_name": state._forniture.name,
+                    "current_floor": state._floor,
+                }
+            )
+            if all_ground and state._floor != 0:
+                all_ground = False
+
+        # Now, print all states of movers
+        for state in movers_states[t]:
+            entry["movers"].append(
+                {
+                    "mover_name": state._mover,
+                    "current_floor": state._floor,
+                    "action": build_action(state),
+                }
+            )
+            if all_ground and state._floor != 0:
+                all_ground = False
+
+        # Save entry in simulation
+        response["simulation_steps"].append(entry)
+
+        total_steps += 1
+
+        # If finished, break
+        if all_ground:
+            break
+
+    # Register total steps
+    response["total_steps"] = total_steps
+
+    # Return JSON response
+    Logger().info("Problem instance solved successfully")
+    return ORJSONResponse(
+        build_response(
+            success=True,
+            message="The problem instance has been solved optimally.",
+            data=response,
+        )
+    )
