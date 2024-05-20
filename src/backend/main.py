@@ -77,6 +77,12 @@ async def solveRoute(
             )
         )
     # Validate forniture floors
+    if not forniture:
+        return ORJSONResponse(
+            build_response(
+                success=False, message="The forniture list must not be empty"
+            )
+        )
     status = validate_forniture(n_floors, forniture)
     if not status:
         return ORJSONResponse(
