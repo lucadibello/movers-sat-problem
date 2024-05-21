@@ -26,35 +26,45 @@ export default function FornitureConfigurator({ onSubmit, onBack }: FornitureCon
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Heading as="h1" size="lg">Forniture Configuration</Heading>
-			<VStack minH="70vh" w="full" spacing={4} align="center" justify="center">
-				{floorElements.map((Floor, index) => (
-					<Box w="full" key={index}>
-						<VStack>
-							{floors - index - 1 === 0 ? <Text>Ground Floor</Text> : <Text>Floor #{floors - index - 1}</Text>}
-							{/* Render the floor */}
-							<Floor
-								floorNo={floors - index - 1}
-								items={forniture.filter((f) => f.floor === floors - index - 1)}
-								onDrop={(card_element) => {
-									// Remove the forniture from the previous floor if present
-									if (card_element.floor !== undefined) {
-										if (card_element.floor !== floors - index - 1) {
-											console.log("Updating forniture with ID", card_element.id, "from", card_element.floor, "to", floors - index - 1)
-											updateForniture(card_element, floors - index - 1)
+			<VStack
+				h="70vh"
+				w="full"
+				spacing={4}
+				align="center"
+				justify="center"
+			>
+				<Box w="full" overflowY="auto">
+					{floorElements.map((Floor, index) => (
+						<Box w="full" key={index}>
+							<VStack>
+								{floors - index - 1 === 0 ? <Text>Ground Floor</Text> : <Text>Floor #{floors - index - 1}</Text>}
+								{/* Render the floor */}
+								<Floor
+									floorNo={floors - index - 1}
+									items={forniture.filter((f) => f.floor === floors - index - 1)}
+									onDrop={(card_element) => {
+										// Remove the forniture from the previous floor if present
+										if (card_element.floor !== undefined) {
+											if (card_element.floor !== floors - index - 1) {
+												console.log("Updating forniture with ID", card_element.id, "from", card_element.floor, "to", floors - index - 1)
+												updateForniture(card_element, floors - index - 1)
+											}
+										} else {
+											console.log("Adding new forniture to", floors - index - 1)
+											addForniture(card_element, floors - index - 1)
 										}
-									} else {
-										console.log("Adding new forniture to", floors - index - 1)
-										addForniture(card_element, floors - index - 1)
-									}
-								}}
-							/>
-						</VStack>
-					</Box>
-				))}
+									}}
+								/>
+							</VStack>
+						</Box>
+					))}
+				</Box>
 
 				{/* Gallery of forniture */}
-				<Text>Drag-and-drop the objects to the desired floor</Text>
-				<FornitureScrollGallery />
+				<Box h="auto">
+					<Text>Drag-and-drop the objects to the desired floor</Text>
+					<FornitureScrollGallery />
+				</Box>
 
 				{/* Action buttons */}
 				<VStack w="full">

@@ -4,7 +4,7 @@ import DraggableFornitureIcon from "./FornitureIcon";
 
 export default function FornitureScrollGallery() {
 	return (
-		<HStack w="100wh" overflowX="scroll" spacing={4} p={4}>
+		<HStack w="100wh" overflowX="auto" spacing={4} p={4}>
 			{/* Forniture cards */}
 			{FORNITURE_CARDS.map((card, index) => (
 				<DraggableFornitureIcon

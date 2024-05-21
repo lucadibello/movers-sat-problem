@@ -69,51 +69,63 @@ function SimulationFloors({ n_floors, state }: SimulationFloorsProps) {
 		})
 		setForniture(localForniture)
 	}, [fornitureMap, state.forniture])
+
+	console.log(n_floors)
+
 	return (
-		<VStack minH="70vh" w="full" spacing={4} align="center" justify="center">
-			{[...Array(n_floors)].map((_, index) => (
-				<VStack w="full" key={index}>
-					<Text>
-						{n_floors - index - 1 === 0 ? "Ground Floor" : "Floor #" + (n_floors - index - 1)}
-					</Text>
-					{/* Render the floor */}
-					<Box
-						w="full"
-						p={4}
-						borderWidth={1}
-						borderRadius="lg"
-						boxShadow="md"
-						minH={"9em"}
-					>
-						{/* Render the items */}
-						<HStack gap={2}>
-							{forniture.filter((item) => item.floor === n_floors - index - 1).map((item, index) => (
-								<Box key={index} mb={2}>
-									<FornitureIcon
-										name={item.name}
-										icon={item.icon}
-										showBadge={true}
-										badgeColor="gray.500"
-										badgeText={"#" + String(item.id) || "Unknown"}
-										isBadgeSmall={true}
-									/>
-								</Box>
-							))}
-							{state.movers.filter((mover) => mover.floor === n_floors - index - 1).map((mover, index) => (
-								<Box key={index} mb={2}>
-									<FornitureIcon
-										name={mover.name}
-										icon={FaHardHat}
-										showBadge={true}
-										badgeColor={getActionColor(mover)}
-										badgeText={getActionName(mover)}
-									/>
-								</Box>
-							))}
-						</HStack>
-					</Box>
-				</VStack>
-			))}
+		<VStack
+			h="70vh"
+			w="full"
+			spacing={4}
+			align="center"
+			justify="center"
+			overflowY={"auto"}
+		>
+			<Box w="full" overflowY="auto">
+				{[...Array(n_floors)].map((_, index) => (
+					<VStack w="full" key={index}>
+						<Text>
+							{n_floors - index - 1 === 0 ? "Ground Floor" : "Floor #" + (n_floors - index - 1)}
+						</Text>
+						{/* Render the floor */}
+						<Box
+							w="full"
+							p={4}
+							borderWidth={1}
+							borderRadius="lg"
+							boxShadow="md"
+							minH={"9em"}
+						>
+							{/* Render the items */}
+							<HStack gap={2}>
+								{forniture.filter((item) => item.floor === n_floors - index - 1).map((item, index) => (
+									<Box key={index} mb={2}>
+										<FornitureIcon
+											name={item.name}
+											icon={item.icon}
+											showBadge={true}
+											badgeColor="gray.500"
+											badgeText={"#" + String(item.id) || "Unknown"}
+											isBadgeSmall={true}
+										/>
+									</Box>
+								))}
+								{state.movers.filter((mover) => mover.floor === n_floors - index - 1).map((mover, index) => (
+									<Box key={index} mb={2}>
+										<FornitureIcon
+											name={mover.name}
+											icon={FaHardHat}
+											showBadge={true}
+											badgeColor={getActionColor(mover)}
+											badgeText={getActionName(mover)}
+										/>
+									</Box>
+								))}
+							</HStack>
+						</Box>
+					</VStack>
+				))}
+			</Box>
 		</VStack>
 	)
 }
@@ -129,14 +141,12 @@ export default function Simulation({ simulationSteps, totalSteps, onDone }: Simu
 	const [simulationStep, setSimulationStep] = useState<SimulationStep>(simulationSteps[currentTimeStep])
 
 	// Load settings from the context
-	const { floors, reset } = useMovers()
+	const { floors } = useMovers()
 
 	// Update the simulation step when the current step changes
 	useEffect(() => {
 		setSimulationStep(simulationSteps[currentTimeStep])
 	}, [currentTimeStep, simulationSteps])
-
-	console.log(simulationStep)
 
 	// Render the step
 	return (

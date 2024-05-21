@@ -43,6 +43,7 @@ export default function SolverRequest({ onSubmit, onReset }: SolverRequestProps)
 				} else {
 					setMessage(res.message)
 					setData(null)
+					setError(true)
 					console.error(res.message)
 				}
 			}).catch((error) => {
