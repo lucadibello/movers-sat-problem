@@ -1,7 +1,6 @@
-import { Box, Icon, Heading, VStack } from "@chakra-ui/react";
+import { Icon, Heading, VStack } from "@chakra-ui/react";
 import { useDrag } from "react-dnd";
 import { IconType } from "react-icons";
-import { FiX } from "react-icons/fi";
 import { DragItemType } from "util/drag";
 import { FornitureItem } from "util/forniture";
 

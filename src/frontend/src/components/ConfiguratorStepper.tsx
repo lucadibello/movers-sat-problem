@@ -3,7 +3,7 @@ import { Box, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSe
 const steps = [
 	{ title: 'Definition', description: 'Define the problem' },
 	{ title: 'Setup', description: 'Arrange forniture' },
-	{ title: 'Solution', description: 'Get the solution' }
+	{ title: 'SAT Solver', description: 'Solve the problem' }
 ]
 
 interface ConfiguratorStepperProps {

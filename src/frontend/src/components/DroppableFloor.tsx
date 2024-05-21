@@ -1,4 +1,4 @@
-import { Box, HStack, VStack } from "@chakra-ui/react";
+import { Box, HStack } from "@chakra-ui/react";
 import { useDrop } from "react-dnd";
 import { DragItemType } from "util/drag";
 import FornitureIcon from "./FornitureIcon";
