@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional, TypeVar, TypedDict
+from typing import Optional, TypeVar, TypedDict, Union
 
 
 class Forniture(BaseModel):
-    name: str
+    name: Union[str, int]
     floor: int
 
 
