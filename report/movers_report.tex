@@ -213,6 +213,68 @@ This section describes how the actions of the movers alter the state of the syst
 \pagebreak
 
 \section{System Design}
+The system has been divided into a frontend and a backend. The frontend is responsible for receiving the problem instance from the user and sending it to the backend for processing. The backend will receive the problem data from a specialized API and will solve the problem using the z3-solver. The solution will be sent back to the frontend as a response.
+
+In the following sections, the frontend and backend will be described in more detail.
+
+\subsection{Frontend - User Interface}
+The frontend of our system is built using Chakra UI, a simple, modular, and accessible component library that provides the building blocks needed to build React applications. Chakra UI ensures a consistent look and feel across the application and enhances the development experience with its extensive set of customizable components.
+
+To facilitate interaction with the backend API, we have implemented a custom library. This library simplifies API calls and manages the communication between the frontend and backend, ensuring a seamless and efficient data exchange.
+
+The user initiates the process by composing a form in the React-app. This form contains information about the problem setup, such as the number of movers, floors, maximum steps, and furniture details. Once the form is completed, the React-app sends an HTTP POST request to the backend solver service at the \texttt{/solve} endpoint. This request includes the data provided by the user. This form is used to validate user inputs before sending data to the backend. It ensures that the data received by the backend is correct and reduces the likelihood of errors, providing a smoother user experience.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{ ./images/System_Design.png 
+}
+    \caption{Diagram of the User Interface}
+    \label{fig:ui_diagram}
+\end{figure}
+
+\subsection{Backend - APIs and Solver}
+The backend, as previously mentioned, is responsible for receiving the problem instance from the frontend and solving it using the z3-solver. The backend exposes a single endpoint \texttt{/solve} which receives a JSON object containing the problem instance and returns a JSON object with the solution.
+
+This is the structure of a call to the \texttt{/solve} endpoint on the backend started on the local machine:
+
+\begin{verbatim}
+curl -X POST -H "Content-Type: application/json" \
+      --data '{"max_t": 10, "furniture": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}' \
+      http://localhost:5000/solve?m=2&n=5&max_t=10
+\end{verbatim}
+
+The sequence diagram in Figure~\ref{fig:sequence-diagram} illustrates the interaction between a user, the React-app frontend via Custom API, and the backend solver service in a Movers SAT problem-solving application.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{ ./images/sequenceDiagram.png }
+    \caption{Sequence Diagram}
+    \label{fig:sequence-diagram}
+\end{figure}
+
+ Below is a step-by-step explanation of the process:
+
+\begin{enumerate}
+   
+    \item \textbf{Backend Solver Service}:
+    \begin{itemize}
+        \item Upon receiving the request, the backend solver service is activated and begins processing the request.
+        \item \textbf{Data Validation}: The backend performs data validation to ensure that the input parameters (number of movers, floors, maximum steps, and furniture details) are valid and correctly formatted.
+        \item \textbf{Problem Building}: After successful validation, the backend constructs the problem by defining the necessary constraints and setup required to solve the Movers SAT problem.
+        \item \textbf{Problem Solving}: The backend then runs the solver to compute the solution to the problem. This involves calculating the optimal steps and actions needed to move the furniture as specified.
+    \end{itemize}
+    \item \textbf{Response to React-app}:
+    \begin{itemize}
+        \item Once the problem is solved, the backend sends the solution back to the React-app. This response includes the computed steps and actions for the movers and furniture.
+    \end{itemize}
+    \item \textbf{Display Solution}:
+    \begin{itemize}
+        \item The React-app receives the solution and displays it to the user. The user can now see the detailed steps and actions taken to solve the Movers SAT problem.
+    \end{itemize}
+\end{enumerate}
+
+This diagram captures the entire workflow from user input to solution display, highlighting the key interactions and processes involved in solving the Movers SAT problem using the React-app and backend solver service.
+
 
 \pagebreak
 
