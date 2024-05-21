@@ -1,26 +1,20 @@
 import { Box } from "@chakra-ui/react";
 import { useDrop } from "react-dnd";
-import { Forniture } from "services/solver-service";
 import { DragItemType } from "util/drag";
 import FornitureIcon from "./FornitureIcon";
-import { FornitureCardElement } from "util/forniture";
-
-export interface FloorItem {
-	forniture: FornitureCardElement,
-	worker?: string;
-}
+import { FornitureItem } from "util/forniture";
 
 interface DroppableFloorProps {
-	floorIndex: number;
-	items: FloorItem[];
-	onDrop: (item: FornitureCardElement) => void;
+	items: FornitureItem[];
+	floorNo: number;
+	onDrop: (item: FornitureItem) => void;
 }
 
-export default function DroppableFloor({ floorIndex, items, onDrop }: DroppableFloorProps) {
+export default function DroppableFloor({ floorNo, items, onDrop }: DroppableFloorProps) {
 	// Make the floor droppable
 	const [{ isOver }, drop] = useDrop({
 		accept: DragItemType.FORNITURE,
-		drop: (item: FornitureCardElement) => onDrop(item),
+		drop: (item: FornitureItem) => onDrop(item),
 		collect: (monitor) => ({
 			isOver: !!monitor.isOver(),
 		}),
@@ -41,7 +35,13 @@ export default function DroppableFloor({ floorIndex, items, onDrop }: DroppableF
 			{/* Render the items */}
 			{items.map((item, index) => (
 				<Box key={index} mb={2}>
-					<FornitureIcon key={index} name={item.forniture.name} icon={item.forniture.icon} />
+					<FornitureIcon
+						key={index}
+						currentFloor={floorNo}
+						name={item.name}
+						icon={item.icon}
+						id={item.id}
+					/>
 				</Box>
 			))}
 		</Box >

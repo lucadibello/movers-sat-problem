@@ -7,7 +7,11 @@ export default function FornitureScrollGallery() {
 		<HStack w="100wh" overflowX="scroll" spacing={4} p={4}>
 			{/* Forniture cards */}
 			{FORNITURE_CARDS.map((card, index) => (
-				<FornitureIcon name={card.name} icon={card.icon} key={index} />
+				<FornitureIcon
+					name={card.name}
+					icon={card.icon}
+					key={index}
+				/>
 			))}
 		</HStack>
 	)

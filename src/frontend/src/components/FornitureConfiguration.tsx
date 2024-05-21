@@ -1,24 +1,13 @@
-import { useState } from "react";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { useMovers } from "contexts/MoverContext";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DroppableFloor from "./DroppableFloor";
 import FornitureScrollGallery from "./FornitureScrollGallery";
-import { FornitureCardElement } from "util/forniture";
-
-interface FornitureAtFloor {
-	id: number;
-	floor: number;
-	forniture: FornitureCardElement;
-}
 
 export default function FornitureConfigurator() {
 	// Load movers context to access settings
-	const { floors } = useMovers()
-
-	// Load the React State
-	const [fornitures, setFornitures] = useState<FornitureAtFloor[]>([])
+	const { floors, forniture, addForniture, updateForniture } = useMovers()
 
 	// Create a list of floors to place the forniture
 	const floorElements = []
@@ -37,18 +26,19 @@ export default function FornitureConfigurator() {
 							<Text>Floor #{index + 1}</Text>
 							{/* Render the floor */}
 							<Floor
-								floorIndex={index}
-								items={fornitures.filter((f) => f.floor === index)}
+								floorNo={index}
+								items={forniture.filter((f) => f.floor === index)}
 								onDrop={(card_element) => {
 									console.log(card_element, "Floor", index, "Dropped!")
-									setFornitures([
-										...fornitures,
-										{
-											id: fornitures.length,
-											floor: index,
-											forniture: card_element
-										}
-									])
+
+									// Remove the forniture from the previous floor if present
+									if (card_element.floor !== undefined) {
+										console.log("Updating forniture")
+										updateForniture(card_element, index)
+									} else {
+										console.log("Adding new forniture")
+										addForniture(card_element, index)
+									}
 								}}
 							/>
 						</HStack>

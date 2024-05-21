@@ -1,28 +1,34 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Forniture, Mover } from 'services/solver-service';
+import { Mover } from 'services/solver-service';
+import { FornitureItem } from 'util/forniture';
 
 interface MoversContextType {
 	movers: Mover[];
 	floors: number;
 	numberOfMovers: number;
 	maxTime: number;
-	forniture: Forniture[];
+	forniture: FornitureItem[];
 	addMover: (mover: Mover) => void;
 	updateMover: (id: string, newFloor: number) => void;
 	setFloors: (floors: number) => void;
 	setNumberOfMovers: (num: number) => void;
 	setMaxTime: (time: number) => void;
-	addForniture: (item: Forniture) => void;
+	addForniture: (item: FornitureItem, newFloor: number) => void;
+	updateForniture: (item: FornitureItem, newFloor: number) => void;
 }
 
 const MoversContext = createContext<MoversContextType | undefined>(undefined);
 
 const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-	const [movers, setMovers] = useState<Mover[]>([]);
+	// Simulation settings
 	const [floors, setFloors] = useState<number>(1);
 	const [numberOfMovers, setNumberOfMovers] = useState<number>(1);
 	const [maxTime, setMaxTime] = useState<number>(0);
-	const [forniture, setForniture] = useState<Forniture[]>([]);
+	const [index, setIndex] = useState<number>(0);
+
+	// Simulation elements
+	const [movers, setMovers] = useState<Mover[]>([]);
+	const [forniture, setForniture] = useState<FornitureItem[]>([]);
 
 	const addMover = (mover: Mover) => {
 		setMovers((prevMovers) => [...prevMovers, mover]);
@@ -36,9 +42,27 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 		);
 	};
 
-	const addForniture = (item: Forniture) => {
-		setForniture((prevForniture) => [...prevForniture, item]);
+	const addForniture = (item: FornitureItem, newFloor: number) => {
+		// Generate a new ID for the forniture
+		item.id = getNewID();
+		setForniture((prevForniture) => [...prevForniture, {
+			...item,
+			floor: newFloor
+		}]);
 	};
+
+	const updateForniture = (item: FornitureItem, newFloor: number) => {
+		setForniture((prevForniture) =>
+			prevForniture.map((forniture) =>
+				forniture.id === item.id ? { ...forniture, floor: newFloor } : forniture
+			)
+		);
+	}
+
+	const getNewID = () => {
+		setIndex((prevIndex) => prevIndex + 1);
+		return index;
+	}
 
 	return (
 		<MoversContext.Provider
@@ -54,6 +78,7 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 				setNumberOfMovers,
 				setMaxTime,
 				addForniture,
+				updateForniture,
 			}}
 		>
 			{children}
