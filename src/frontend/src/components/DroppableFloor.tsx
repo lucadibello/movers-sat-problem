@@ -37,7 +37,7 @@ export default function DroppableFloor({ floorNo, items, onDrop }: DroppableFloo
 					<Box key={index} mb={2}>
 						<FornitureIcon
 							key={index}
-							currentFloor={floorNo}
+							floor={floorNo}
 							name={item.name}
 							icon={item.icon}
 							id={item.id}

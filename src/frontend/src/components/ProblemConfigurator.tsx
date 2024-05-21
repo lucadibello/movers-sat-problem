@@ -1,4 +1,4 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, Input, VStack } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Input, VStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 
 interface FormData {
@@ -88,9 +88,11 @@ export function ProblemConfigurator({
 					</FormErrorMessage>
 				</FormControl>
 
-				<Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
-					Next
-				</Button>
+				<Box w="full">
+					<Button w="full" mt={4} colorScheme='blue' isLoading={isSubmitting} type='submit'>
+						Proceed
+					</Button>
+				</Box>
 			</VStack>
 		</form>
 	)

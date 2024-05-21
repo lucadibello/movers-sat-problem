@@ -24,7 +24,7 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [floors, setFloors] = useState<number>(1);
 	const [numberOfMovers, setNumberOfMovers] = useState<number>(1);
 	const [maxTime, setMaxTime] = useState<number>(0);
-	const [index, setIndex] = useState<number>(0);
+	const [index, setIndex] = useState<number>(1); // IDs start from 1
 
 	// Simulation elements
 	const [movers, setMovers] = useState<Mover[]>([]);
@@ -54,7 +54,7 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const updateForniture = (item: FornitureItem, newFloor: number) => {
 		setForniture((prevForniture) =>
 			prevForniture.map((forniture) =>
-				forniture.id === item.id ? { ...forniture, floor: newFloor } : forniture
+				forniture.id === item.id && forniture.floor !== newFloor ? { ...forniture, floor: newFloor } : forniture
 			)
 		);
 	}

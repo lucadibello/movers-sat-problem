@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Container, VStack } from "@chakra-ui/react";
+import { Box, Container, Heading, VStack } from "@chakra-ui/react";
 import { ProblemConfigurator } from "./components/ProblemConfigurator";
 import ConfiguratorStepper from "components/ConfiguratorStepper";
 import { useMovers } from "contexts/MoverContext";
@@ -21,28 +21,33 @@ export const App = () => {
 					{ /* Step 1: Problem configurator */}
 					{ /* Step 2: Configure the forniture placement */}
 					<ElementStepper activeStep={activeStep} elements={[
-						<ProblemConfigurator
-							onSubmit={(data) => {
-								// save data inside the context
-								setFloors(data.n_floors)
-								setNumberOfMovers(data.n_movers)
-								setMaxTime(data.max_t)
-								// proceed to next step
-								setActiveStep(1)
-							}}
-						/>,
-						<FornitureConfigurator />,
+						<Box w="full">
+							<Heading as="h1" pb={10} size="lg">Configure your problem instance</Heading>
+							<ProblemConfigurator
+								onSubmit={(data) => {
+									// save data inside the context
+									setFloors(data.n_floors)
+									setNumberOfMovers(data.n_movers)
+									setMaxTime(data.max_t)
+									// proceed to next step
+									setActiveStep(1)
+								}}
+							/>
+						</Box>,
+						<FornitureConfigurator onSubmit={() => {
+							setActiveStep(2)
+						}} />,
 						<div>Step 3</div>,
 					]} />
 				</VStack>
-
-				{/* Stepper */}
-				<ConfiguratorStepper
-					activeStep={activeStep}
-					goToStep={(step) => {
-						setActiveStep(step)
-					}}
-				/>
+				<Box mt={10} w="full">
+					<ConfiguratorStepper
+						activeStep={activeStep}
+						goToStep={(step) => {
+							setActiveStep(step)
+						}}
+					/>
+				</Box>
 			</Container>
 		</Box>
 	)

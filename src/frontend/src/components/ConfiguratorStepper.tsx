@@ -3,6 +3,7 @@ import { Box, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSe
 const steps = [
 	{ title: 'Definition', description: 'Define the problem' },
 	{ title: 'Setup', description: 'Arrange forniture' },
+	{ title: 'Solution', description: 'Get the solution' }
 ]
 
 interface ConfiguratorStepperProps {
@@ -43,7 +44,7 @@ export default function ProblemConfiguratorStepper({ activeStep, goToStep }: Con
 						/>
 					</StepIndicator>
 
-					<Box flexShrink='0'>
+					<Box flexShrink='0' display={"block"}>
 						<StepTitle>{step.title}</StepTitle>
 						<StepDescription>{step.description}</StepDescription>
 					</Box>
