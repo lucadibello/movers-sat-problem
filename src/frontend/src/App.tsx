@@ -4,6 +4,7 @@ import { ProblemConfigurator } from "./components/ProblemConfigurator";
 import ConfiguratorStepper from "components/ConfiguratorStepper";
 import { useMovers } from "contexts/MoverContext";
 import ElementStepper from "components/ElementStepper";
+import FornitureConfigurator from "components/FornitureConfiguration";
 
 export const App = () => {
 	// React state to keep track of active configuration step
@@ -17,6 +18,8 @@ export const App = () => {
 		<Box as="main" textAlign="center" fontSize="xl">
 			<Container minH="100vh" p={4}>
 				<VStack spacing={4} align="center" justify="center">
+					{ /* Step 1: Problem configurator */}
+					{ /* Step 2: Configure the forniture placement */}
 					<ElementStepper activeStep={activeStep} elements={[
 						<ProblemConfigurator
 							onSubmit={(data) => {
@@ -28,13 +31,18 @@ export const App = () => {
 								setActiveStep(1)
 							}}
 						/>,
-						<div>Step 2</div>,
+						<FornitureConfigurator />,
 						<div>Step 3</div>,
 					]} />
 				</VStack>
 
 				{/* Stepper */}
-				<ConfiguratorStepper activeStep={activeStep} />
+				<ConfiguratorStepper
+					activeStep={activeStep}
+					goToStep={(step) => {
+						setActiveStep(step)
+					}}
+				/>
 			</Container>
 		</Box>
 	)
