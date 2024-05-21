@@ -8,7 +8,7 @@ interface MoverAction {
 
 export interface Mover {
 	name: string;
-	current_floor: number;
+	floor: number;
 }
 
 interface MoverWithAction extends Mover {
@@ -17,15 +17,15 @@ interface MoverWithAction extends Mover {
 
 export interface Forniture {
 	name: string;
-	current_floor: string;
+	floor: number;
 }
 
-interface SimulationStep {
+export interface SimulationStep {
 	movers: MoverWithAction[];
 	forniture: Forniture[];
 }
 
-type SolveResponse = {
+export type SolveResponse = {
 	total_steps: number;
 	movers_names: string[];
 	forniture_names: string[];

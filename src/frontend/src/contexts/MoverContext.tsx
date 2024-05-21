@@ -15,6 +15,7 @@ interface MoversContextType {
 	setMaxTime: (time: number) => void;
 	addForniture: (item: FornitureItem, newFloor: number) => void;
 	updateForniture: (item: FornitureItem, newFloor: number) => void;
+	reset: () => void;
 }
 
 const MoversContext = createContext<MoversContextType | undefined>(undefined);
@@ -64,6 +65,15 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 		return index;
 	}
 
+	const reset = () => {
+		setMovers([]);
+		setForniture([]);
+		setFloors(1);
+		setNumberOfMovers(1);
+		setMaxTime(0);
+		setIndex(1);
+	}
+
 	return (
 		<MoversContext.Provider
 			value={{
@@ -79,6 +89,7 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 				setMaxTime,
 				addForniture,
 				updateForniture,
+				reset
 			}}
 		>
 			{children}

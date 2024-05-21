@@ -5,6 +5,7 @@ import ConfiguratorStepper from "components/ConfiguratorStepper";
 import { useMovers } from "contexts/MoverContext";
 import ElementStepper from "components/ElementStepper";
 import FornitureConfigurator from "components/FornitureConfiguration";
+import SolverRequest from "components/SolverRequest";
 
 export const App = () => {
 	// React state to keep track of active configuration step
@@ -16,12 +17,12 @@ export const App = () => {
 	// Return the JSX component
 	return (
 		<Box as="main" textAlign="center" fontSize="xl">
-			<Container minH="100vh" p={4}>
+			<Container minH="80vh" p={4}>
 				<VStack spacing={4} align="center" justify="center">
 					{ /* Step 1: Problem configurator */}
 					{ /* Step 2: Configure the forniture placement */}
 					<ElementStepper activeStep={activeStep} elements={[
-						<Box w="full">
+						<Box w="full" minH={"70vh"}>
 							<Heading as="h1" pb={10} size="lg">Configure your problem instance</Heading>
 							<ProblemConfigurator
 								onSubmit={(data) => {
@@ -34,10 +35,17 @@ export const App = () => {
 								}}
 							/>
 						</Box>,
-						<FornitureConfigurator onSubmit={() => {
-							setActiveStep(2)
-						}} />,
-						<div>Step 3</div>,
+						<FornitureConfigurator
+							onSubmit={() => {
+								setActiveStep(2)
+							}}
+							onBack={() => {
+								setActiveStep(0)
+							}}
+						/>,
+						<SolverRequest onSubmit={() => {
+							setActiveStep(3)
+						}} />
 					]} />
 				</VStack>
 				<Box mt={10} w="full">
