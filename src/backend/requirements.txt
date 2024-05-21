@@ -1,0 +1,5 @@
+- orjson==3.10.2
+- uvicorn==0.29.0
+- z3-solver==4.13.0.0
+- fastapi==0.111.0
+- dotenv==1.0.1

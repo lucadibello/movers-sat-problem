@@ -9,9 +9,8 @@ FROM node:18-bullseye-slim AS builder
 WORKDIR /app
 
 # Install Bun
-RUN apt-get update && apt-get install -y curl && \
-	curl https://bun.sh/install | bash && \
-	ln -s /root/.bun/bin/bun /usr/local/bin/bun
+RUN apt-get update && apt-get install -y curl unzip
+RUN curl https://bun.sh/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
 
 # Copy the app's source code
 COPY . .
