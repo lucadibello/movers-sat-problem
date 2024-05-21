@@ -86,7 +86,7 @@ export function ProblemConfigurator({
 				</FormControl>
 
 				<Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
-					Submit
+					Next
 				</Button>
 			</VStack>
 		</form>

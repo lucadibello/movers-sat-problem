@@ -3,16 +3,21 @@ import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { Providers } from "providers/providers";
+import Nav from "components/Nav";
 
 const container = document.getElementById("root");
 if (!container) throw new Error("Failed to find the root element");
 const root = ReactDOM.createRoot(container);
 
 root.render(
-  <React.StrictMode>
-    <ColorModeScript />
-    <App />
-  </React.StrictMode>,
+	<React.StrictMode>
+		<ColorModeScript />
+		<Providers>
+			<Nav />
+			<App />
+		</Providers>
+	</React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function
