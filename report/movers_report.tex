@@ -28,6 +28,180 @@
 
 \section{Mathematical representation}
 
+\subsection{Input Parameters}
+
+\begin{enumerate}
+    \item $m \in \mathbb{N}^+$: number of movers
+     \item $n \in \mathbb{N}^+$: number of floors
+      \item $t_{max} \in \mathbb{N}^+$: maximum number of steps to solve the problem
+\end{enumerate}
+
+\subsection{Sets / Domains}
+
+\begin{itemize}
+    \item $M = \{m_1, m_2, ..., m_m\}$: set of movers
+    \item $L = \{l_1, l_2, ..., l_n\}$: set of floors ("levels") in the building
+    \item $F = \{f_1, f_2, ..., f_k\}$: set of forniture items
+    \item $T = \{t_1, t_2, ..., t_{max}\}$: set of timestamps from 1 to $t_{max}$
+\end{itemize}
+
+
+\subsection{Variables}
+
+\subsubsection{Variables describing the state of the system}
+
+\begin{itemize}
+    \item $atFloor(m, l, t) \in \{0, 1\}$, \textit{True} if mover $m$ is at floor $l$ at time $t$
+    \item $atFloorForniture(f, l, t) \in \{0, 1\}$, \textit{True} if forniture $f$ is at floor $l$ at time $t$
+\end{itemize}
+
+\subsubsection{Variables describing the actions of the movers}
+
+\begin{itemize}
+    \item $ascend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is ascending at time $t$
+    \item $descend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is descending at time $t$
+    \item $carry(m, f,  t) \in \{0, 1\}$, \textit{True} if mover $m$ is carrying forniture $f$ at time $t$
+\end{itemize}
+
+\subsection{Constraints}
+
+\subsubsection{Action Definition}
+
+This section describes how the actions of the movers alter the state of the system.
+
+\begin{enumerate}
+    \item $ascend(m, t)$: a mover can move up one floor at a time (except when at the last floor)
+    $$
+    l < n -1 \land atFloor(m, l, t) \land ascend(m, t) \implies atFloor(m, l+1, t+1) 
+    $$ 
+    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+
+    \item $descend(m, t)$: a mover can move down one floor at a time (except when at the ground floor)
+    $$
+    l > 0 \land atFloor(m, l, t) \land descend(m, t) \implies atFloor(m, l-1, t+1) 
+    $$ 
+     $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+
+     \item $carry(m, f, t)$: a mover can carry a piece of forniture if it is at the same floor as the mover. At the next time step, the mover and the forniture will be at the floor below (except when at the ground floor):
+    \begin{align*}
+    l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
+    atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
+\end{align*}
+     $\forall$ mover $m \in M$, forniture $f \in F$, floor $l \in L$, time $t \in T$
+    
+\end{enumerate}
+
+
+\subsubsection{Initial and Final Constraints}
+
+\begin{enumerate}
+    \item Initial constraint: movers start at the ground floor
+
+    $$atFloor(m_i, 0, 0)$$
+
+    $\forall$ mover $m \in M$
+
+    \item Final constraint: movers end at the ground floor
+
+    $$atFloor(m, 0, t_{max}) \land atFloorForniture(f, 0, t_{max})$$
+
+     $\forall$ mover $m \in M$, forniture $f \in F$
+    
+
+    
+\end{enumerate}
+
+\subsubsection{Other Constraints}
+
+\begin{enumerate}
+    \item Each mover is exactly at one floor at a time
+
+    \begin{itemize}
+        \item Each mover is at least at one floor
+        $$ \bigvee_{m \in M, l \in L, t\in T} atFloor(m, l, t) $$
+
+        \item A mover cannot be at more than one floor
+        $$ atFloor(m, l_1, t) \implies \lnot atFloor(m, l_2, t) $$
+
+        $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$, time $t \in T$
+    \end{itemize}
+
+    \item Each forniture is exactly at one floor at a time
+
+    \begin{itemize}
+        \item Each forniture is at least at one floor
+        $$ \bigvee_{f \in F, l \in L, t\in T} atFloorForniture(f, l, t) $$
+
+        \item A forniture cannot be at more than one floor
+        $$ atFloorForniture(f, l_1, t) \implies \lnot atFloorForniture(f, l_2, t) $$
+
+        $\forall$ forniture $f \in F$, floors $l_1 \neq l_2 \in L$, time $t \in T$
+    \end{itemize}
+
+    \item If a mover is not ascending, descending, or carrying it stays at the same floor
+
+    $$atFloor(m,l,t) \land \lnot ascend(m, t) \land \lnot descend(m, t) \land \bigwedge_{f \in F} \lnot carry(m, f, t) \implies atFloor(m,l, t+1) $$
+
+    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+
+    \item If a forniture is not being carried, it stays at the same floor
+
+    $$atFloorForniture(f, l, t) \land \bigwedge_{m \in M} \lnot carry(m, f, t) \implies atFloorForniture(f, l, t + 1)$$
+
+    $\forall$ forniture $f \in F$, floor $l \in L$, time $t \in T$
+
+    \item Each mover can do only one action at a time
+
+    \begin{itemize}
+        \item $ascend(m, t) \implies \lnot descend(m, t)$
+        \item $ascend(m, t) \implies \lnot carry(m, f, t)$
+        \item $descend(m, t) \implies \lnot ascend(m, t)$
+        \item $descend(m, t) \implies \lnot carry(m, f, t)$
+        \item $carry(m, f, t) \implies \lnot ascend(m, t)$
+        \item $carry(m, f, t) \implies \lnot descend(m, t)$
+    \end{itemize}
+
+    $\forall$ mover $m \in M$, floor $l \in L$, forniture $f \in F$, time $t \in T$
+
+    \item Each mover can carry at most one piece of forniture
+
+    $$ carry(m, f_1, t) \implies \lnot carry(m, f_2, t)$$
+
+    $\forall$ mover $m\in M$, forniture $f_1 \neq f_2 \in F$, time $t \in T$
+
+    \item A piece of forniture can be carried by only one mover
+
+    $$ carry(m_1, f, t) \implies \lnot carry(m_2, f, t)$$
+
+    $\forall$ mover $m_1 \neq m_2 \in M$, forniture $f\in F$, time $t \in T$
+
+    \item Movers cannot ascend if they are at the top floor
+
+    $$atFloor(m, n-1, t) \implies \lnot ascend(m, t)$$
+
+    $\forall$ mover $m \in M$, time $t \in T$
+    
+    \item Movers cannot descend if they are at the ground floor
+
+    $$atFloor(m, 0, t) \implies \lnot descend(m, t)$$
+
+    $\forall$ mover $m \in M$, time $t \in T$
+
+    \item A mover has to be on the same floor as an item in order to carry it
+
+    $$atFloor(m, l_1,t) \land atFloorForniture(f, l_2, t) \implies \lnot carry(m, f, t)$$
+
+    $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$ , forniture $f \in F$, time $t \in T$
+
+    \item A mover cannot carry an item which is at the ground floor
+
+    $$atFloorForniture(f, 0, t) \implies \lnot carry(m, f, t)$$
+
+    $\forall$ mover $m \in M$, forniture $f \in F$, time $t \in T$
+    
+    
+\end{enumerate}
+
 \pagebreak
 
 \section{System Design}
