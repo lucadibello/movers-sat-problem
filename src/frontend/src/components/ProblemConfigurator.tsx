@@ -29,7 +29,10 @@ export function ProblemConfigurator({
 	});
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
+		<form onSubmit={handleSubmit(onSubmit)} style={{
+			"height": "100%",
+			"width": "100%",
+		}}>
 			<VStack gap={4} w="full">
 				{/* Number of floors */}
 				<FormControl isInvalid={Boolean(errors.n_floors)}>
