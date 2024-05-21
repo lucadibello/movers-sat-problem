@@ -11,6 +11,24 @@
 \usepackage{memhfixc} 
 \usepackage{pdfsync}  
 \usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codeblue}{rgb}{0.26,0.53,0.96}
+
+\lstset{ 
+  backgroundcolor=\color{white},   
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  commentstyle=\color{codegreen},
+  escapeinside={\%*}{*)},          
+  keywordstyle=\color{codeblue},
+  stringstyle=\color{codegray},
+}
 \pagestyle{fancy}
 \setlength{\headheight}{13.6pt}
 
@@ -274,13 +292,64 @@ The sequence diagram in Figure~\ref{fig:sequence-diagram} illustrates the intera
 \end{enumerate}
 
 This diagram captures the entire workflow from user input to solution display, highlighting the key interactions and processes involved in solving the Movers SAT problem using the React-app and backend solver service.
-
-
 \pagebreak
 
-\documentclass{article}
+\section{How to Get Started}
+This guide will help you to install the tool and run your first network.
 
-\begin{document}
+\subsection{Requirements}
+
+\begin{itemize}
+    \item Python 3.6 or higher
+    \item \texttt{pip} (Python package manager) or \texttt{conda} (Anaconda package manager)
+\end{itemize}
+
+\subsection{Step 1: Clone the repository}
+
+You can clone the repository using \texttt{git}:
+
+\begin{lstlisting}[language=bash]
+# With SSH
+git clone git@github.com:lucadibello/movers-sat-problem.git && cd movers-sat-problem
+# With HTTPS
+git clone https://github.com/lucadibello/movers-sat-problem.git && cd movers-sat-problem
+\end{lstlisting}
+
+\subsection{Step 2: Install Python requirements}
+
+To install the required Python packages, you can either use \texttt{pip} (to install the packages globally) or use \texttt{conda} (preferred method) to create a virtual environment and install the packages locally.
+
+\subsubsection*{Option A: Using \texttt{conda}}
+
+\begin{lstlisting}[language=bash]
+# Create virtual environment + install packages
+conda env create --file=environment.yml
+# Activate the virtual environment
+conda activate movers
+\end{lstlisting}
+
+\subsubsection*{Option B: Using \texttt{pip}}
+
+\begin{lstlisting}[language=bash]
+# Install the required packages
+pip install -r requirements.txt
+\end{lstlisting}
+
+\subsection{Step 3: Run the backend}
+
+\begin{lstlisting}[language=bash]
+# Start the backend in production mode
+cd ./src/backend && make start
+\end{lstlisting}
+
+or, if you want to start the backend in development mode (with \textit{fast refresh}):
+
+\begin{lstlisting}[language=bash]
+# Start the backend in development mode
+cd ./src/backend && make dev
+\end{lstlisting}
+
+\pagebreak
 
 \section{Evaluation}
 
