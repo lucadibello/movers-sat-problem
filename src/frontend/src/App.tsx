@@ -12,7 +12,7 @@ export const App = () => {
 	const [activeStep, setActiveStep] = React.useState(0);
 
 	// Load the context hook
-	const { setFloors, setNumberOfMovers, setMaxTime } = useMovers()
+	const { setFloors, setNumberOfMovers, setMaxTime, reset } = useMovers()
 
 	// Return the JSX component
 	return (
@@ -43,9 +43,15 @@ export const App = () => {
 								setActiveStep(0)
 							}}
 						/>,
-						<SolverRequest onSubmit={() => {
-							setActiveStep(3)
-						}} />
+						<SolverRequest
+							onSubmit={() => {
+								setActiveStep(3)
+							}}
+							onReset={() => {
+								reset()
+								setActiveStep(0)
+							}}
+						/>
 					]} />
 				</VStack>
 				<Box mt={10} w="full">

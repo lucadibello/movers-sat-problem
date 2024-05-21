@@ -15,6 +15,7 @@ interface MoversContextType {
 	setMaxTime: (time: number) => void;
 	addForniture: (item: FornitureItem, newFloor: number) => void;
 	updateForniture: (item: FornitureItem, newFloor: number) => void;
+	fornitureMap: Map<number | string, FornitureItem>;
 	reset: () => void;
 }
 
@@ -26,6 +27,9 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [numberOfMovers, setNumberOfMovers] = useState<number>(1);
 	const [maxTime, setMaxTime] = useState<number>(0);
 	const [index, setIndex] = useState<number>(1); // IDs start from 1
+
+	// Lookup table for forniture
+	const [fornitureMap, setFornitureMap] = useState<Map<number | string, FornitureItem>>(new Map());
 
 	// Simulation elements
 	const [movers, setMovers] = useState<Mover[]>([]);
@@ -50,6 +54,9 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 			...item,
 			floor: newFloor
 		}]);
+
+		// Add link to the lookup table
+		setFornitureMap((prevMap) => new Map(prevMap.set(item.id!, item)));
 	};
 
 	const updateForniture = (item: FornitureItem, newFloor: number) => {
@@ -89,7 +96,8 @@ const MoversProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 				setMaxTime,
 				addForniture,
 				updateForniture,
-				reset
+				reset,
+				fornitureMap
 			}}
 		>
 			{children}

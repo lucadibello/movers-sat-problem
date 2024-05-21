@@ -1,7 +1,7 @@
-import { Box, HStack } from "@chakra-ui/react";
+import { Box, HStack, useColorModeValue } from "@chakra-ui/react";
 import { useDrop } from "react-dnd";
 import { DragItemType } from "util/drag";
-import FornitureIcon from "./FornitureIcon";
+import DraggableFornitureIcon from "./FornitureIcon";
 import { FornitureItem } from "util/forniture";
 
 interface DroppableFloorProps {
@@ -20,6 +20,9 @@ export default function DroppableFloor({ floorNo, items, onDrop }: DroppableFloo
 		}),
 	})
 
+	// Load the color mode
+	const hoverColor = useColorModeValue("gray.400", "gray.700")
+
 	return (
 		<Box
 			ref={drop}
@@ -28,14 +31,14 @@ export default function DroppableFloor({ floorNo, items, onDrop }: DroppableFloo
 			borderWidth={1}
 			borderRadius="lg"
 			boxShadow="md"
-			bg={isOver ? "gray.100" : "white"}
+			bg={isOver ? hoverColor : undefined}
 			minH={"6em"}
 		>
 			{/* Render the items */}
 			<HStack gap={2}>
 				{items.map((item, index) => (
 					<Box key={index} mb={2}>
-						<FornitureIcon
+						<DraggableFornitureIcon
 							key={index}
 							floor={floorNo}
 							name={item.name}

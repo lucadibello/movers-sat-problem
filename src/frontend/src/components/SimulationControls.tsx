@@ -1,19 +1,35 @@
 import { Box, HStack, Icon, IconButton, Text } from "@chakra-ui/react";
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 interface SimulationControlsProps {
 	currentStep: number;
 	totalSteps: number;
 	onPrevious: () => void;
 	onNext: () => void;
+	onFirst: () => void;
+	onLast: () => void;
 	isNextDisabled: boolean;
 	isPreviousDisabled: boolean;
 }
 
-export default function SimulationControls({ isPreviousDisabled, isNextDisabled, currentStep, totalSteps, onPrevious, onNext }: SimulationControlsProps) {
+export default function SimulationControls({
+	isPreviousDisabled,
+	isNextDisabled,
+	currentStep,
+	totalSteps,
+	onPrevious,
+	onNext,
+	onFirst,
+	onLast
+}: SimulationControlsProps) {
 	return (
 		<HStack>
-			{/* Previous button */}
+			<IconButton
+				aria-label="First step"
+				icon={<Icon as={FaAngleDoubleLeft} />}
+				isDisabled={isPreviousDisabled}
+				onClick={onFirst}
+			/>
 			<IconButton
 				aria-label="Previous step"
 				icon={<Icon as={FaAngleLeft} />}
@@ -28,6 +44,12 @@ export default function SimulationControls({ isPreviousDisabled, isNextDisabled,
 				icon={<Icon as={FaAngleRight} />}
 				isDisabled={isNextDisabled}
 				onClick={onNext}
+			/>
+			<IconButton
+				aria-label="Last step"
+				icon={<Icon as={FaAngleDoubleRight} />}
+				isDisabled={isNextDisabled}
+				onClick={onLast}
 			/>
 		</HStack>
 	)

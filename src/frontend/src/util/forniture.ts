@@ -34,3 +34,9 @@ export const FORNITURE_CARDS: FornitureItem[] = [
 		"icon": FaCoffee
 	}
 ]
+
+// Create hashmap for faster access
+export const FORNITURE_MAP: Record<string, FornitureItem> = FORNITURE_CARDS.reduce((acc, item) => {
+	acc[item.name] = item
+	return acc
+}, {} as Record<string, FornitureItem>)

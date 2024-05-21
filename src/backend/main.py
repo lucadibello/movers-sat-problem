@@ -113,7 +113,7 @@ async def solveRoute(
     def build_action(state):
         def build_data():
             if isinstance(state._action, MoverCarryAction):
-                return {"forniture_name": state._action._forniture.name}
+                return {"forniture": state._action._forniture.name}
             else:
                 return None
 
@@ -126,7 +126,6 @@ async def solveRoute(
     response = {
         "total_steps": 0,
         "movers_names": ids,
-        "forniture_names": [f.name for f in forniture],
         "simulation_steps": [],
     }
 
@@ -139,8 +138,8 @@ async def solveRoute(
         for state in forniture_states[t]:
             entry["forniture"].append(
                 {
-                    "forniture_name": state._forniture.name,
-                    "current_floor": state._floor,
+                    "name": state._forniture.name,
+                    "floor": state._floor,
                 }
             )
             if all_ground and state._floor != 0:
@@ -150,8 +149,8 @@ async def solveRoute(
         for state in movers_states[t]:
             entry["movers"].append(
                 {
-                    "mover_name": state._mover,
-                    "current_floor": state._floor,
+                    "name": state._mover,
+                    "floor": state._floor,
                     "action": build_action(state),
                 }
             )

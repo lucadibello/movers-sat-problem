@@ -1,15 +1,16 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Flex, Heading, Spinner, Stack, Text } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
 import { useMovers } from "contexts/MoverContext";
 import { useEffect, useState } from "react";
 import { solve } from "services";
-import { Forniture, SimulationStep, SolveResponse } from "services/solver-service";
-import SimulationControls from "./SimulationControls";
+import { Forniture, SolveResponse } from "services/solver-service";
+import Simulation from "./Simulation";
 
 interface SolverRequestProps {
 	onSubmit: () => void;
+	onReset?: () => void;
 }
 
-export default function SolverRequest({ onSubmit }: SolverRequestProps) {
+export default function SolverRequest({ onSubmit, onReset }: SolverRequestProps) {
 	// React states
 	const [loading, setLoading] = useState(true)
 	const [message, setMessage] = useState<string | null>(null)
@@ -20,8 +21,8 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 	const { floors, maxTime, numberOfMovers, forniture, addMover } = useMovers()
 
 	// Prepare forniture
-	const actualForniture: Forniture[] = forniture.filter((f) => f.floor !== null).map((f) => ({
-		name: f.name,
+	const actualForniture: Forniture[] = forniture.filter((f) => f.floor !== null && f.id !== null).map((f) => ({
+		name: f.id!,
 		floor: f.floor!
 	}))
 
@@ -34,8 +35,6 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 					setMessage(res.message)
 					setData(res.data)
 					setError(false)
-					console.log(res.data)
-
 					// Add movers to the context
 					res.data.movers_names.forEach((mover_name) => addMover({
 						name: mover_name,
@@ -45,12 +44,11 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 					setMessage(res.message)
 					setData(null)
 					console.error(res.message)
-					setError(true)
 				}
 			}).catch((error) => {
 				console.error(error)
 				setError(true)
-				setMessage("Error while processing the request")
+				setMessage("An error occurred while processing the request: " + error.message)
 				setData(null)
 			}).finally(() => {
 				setLoading(false)
@@ -81,11 +79,16 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 					>
 						<AlertIcon boxSize='40px' mr={0} />
 						<AlertTitle mt={4} mb={1} fontSize='lg'>
-							Error while processing the request
+							An error occurred
 						</AlertTitle>
 						<AlertDescription maxWidth='sm'>
 							{message}
 						</AlertDescription>
+						{onReset && (
+							<Button onClick={onReset} mt={4}>
+								Return to the main page
+							</Button>
+						)}
 					</Alert>
 				</Flex>
 			</PageWrapper>
@@ -99,6 +102,9 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 				<Simulation
 					simulationSteps={data!.simulation_steps}
 					totalSteps={data!.total_steps}
+					onDone={() => {
+						onReset && onReset()
+					}}
 				/>
 			</PageWrapper>
 		)
@@ -113,35 +119,9 @@ export default function SolverRequest({ onSubmit }: SolverRequestProps) {
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
 	return (
-		<Box minH="70vh">
+		<Box minH="70vh" w="full">
 			<Heading as="h1" size="lg">Solver Request</Heading>
 			{children}
 		</Box>
-	)
-}
-
-function Simulation({ simulationSteps, totalSteps }: { simulationSteps: SimulationStep[], totalSteps: number }) {
-	const [currentTimeStep, setCurrentTimeStep] = useState(0)
-	const [simulationStep, setSimulationStep] = useState<SimulationStep>(simulationSteps[currentTimeStep])
-
-	// Update the simulation step when the current step changes
-	useEffect(() => {
-		setSimulationStep(simulationSteps[currentTimeStep])
-	}, [currentTimeStep, simulationSteps])
-
-	// Render the step
-	return (
-		<Stack w="full" h="full">
-			<Text>Current {JSON.stringify(simulationStep)}</Text>
-			<Text>Total steps: {totalSteps}</Text>
-			<SimulationControls
-				currentStep={currentTimeStep + 1}
-				isPreviousDisabled={currentTimeStep === 0}
-				isNextDisabled={currentTimeStep === totalSteps - 1}
-				totalSteps={totalSteps}
-				onPrevious={() => setCurrentTimeStep(currentTimeStep - 1)}
-				onNext={() => setCurrentTimeStep(currentTimeStep + 1)}
-			/>
-		</Stack>
 	)
 }
