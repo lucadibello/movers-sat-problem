@@ -6,6 +6,7 @@ networks:
 
 services:
   frontend:
+    container_name: movers-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -20,6 +21,7 @@ services:
       - traefik-network
 
   backend:
+    container_name: movers-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
