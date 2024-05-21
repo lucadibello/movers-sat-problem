@@ -20,4 +20,4 @@ RUN pip install python-dotenv
 RUN pip install z3-solver
 
 # Run the FastAPI server
-CMD ["uvicorn", "main:app", "--host", "backend", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "backend", "--port", "5641"]

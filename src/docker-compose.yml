@@ -1,5 +1,9 @@
 version: "3.8"
 
+networks:
+  traefik-network:
+    external: true
+
 services:
   frontend:
     build:
@@ -12,6 +16,8 @@ services:
     environment:
       - NODE_ENV=production # Set environment to production
       - REACT_APP_API_URL=http://backend:8000/api/v1
+    networks:
+      - traefik-network
 
   backend:
     build:
@@ -22,3 +28,5 @@ services:
       - DEBUG=true
       - API_VERSION=1
       - FRONTEND_URL=http://frontend:1234
+    networks:
+      - traefik-network

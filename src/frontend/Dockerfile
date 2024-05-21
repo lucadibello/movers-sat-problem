@@ -21,14 +21,8 @@ RUN bun install
 # Build the React application
 RUN bun run build
 
-# Stage 2: Serve the application using a lightweight static server
-FROM nginx:alpine
+# Install serve
+RUN npm install -g serve
 
-# Copy static assets from builder stage
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Expose port 80 to the outside
-EXPOSE 1234
-
-# Start nginx to serve the app
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the application
+CMD ["serve", "-s", "build", "-l", "1456"]
