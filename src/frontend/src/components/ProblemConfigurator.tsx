@@ -44,7 +44,7 @@ export function ProblemConfigurator({
 						{...register('n_floors', {
 							required: 'This field is required',
 							min: { value: 1, message: 'The minimum value is 1' },
-							max: { value: 100, message: 'The maximum value is 100' },
+							max: { value: 10, message: 'The maximum value is 10' },
 						})}
 					/>
 					<FormErrorMessage>
@@ -62,7 +62,7 @@ export function ProblemConfigurator({
 						{...register('n_movers', {
 							required: 'This field is required',
 							min: { value: 1, message: 'The minimum value is 1' },
-							max: { value: 100, message: 'The maximum value is 100' },
+							max: { value: 10, message: 'The maximum value is 10' },
 						})}
 					/>
 					<FormErrorMessage>
@@ -80,7 +80,7 @@ export function ProblemConfigurator({
 						{...register('max_t', {
 							required: 'This field is required',
 							min: { value: 1, message: 'The minimum value is 1' },
-							max: { value: 100, message: 'The maximum value is 100' },
+							max: { value: 35, message: 'The maximum value is 35' },
 						})}
 					/>
 					<FormErrorMessage>
