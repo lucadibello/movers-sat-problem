@@ -70,7 +70,11 @@ function SimulationFloors({ n_floors, state }: SimulationFloorsProps) {
 		setForniture(localForniture)
 	}, [fornitureMap, state.forniture])
 
-	console.log(n_floors)
+
+	const trick = []
+	for (let i = 0; i < n_floors; i++) {
+		trick.push(i)
+	}
 
 	return (
 		<VStack
@@ -82,7 +86,7 @@ function SimulationFloors({ n_floors, state }: SimulationFloorsProps) {
 			overflowY={"auto"}
 		>
 			<Box w="full" overflowY="auto">
-				{[...Array(n_floors)].map((_, index) => (
+				{trick.map((_, index) => (
 					<VStack w="full" key={index}>
 						<Text>
 							{n_floors - index - 1 === 0 ? "Ground Floor" : "Floor #" + (n_floors - index - 1)}
