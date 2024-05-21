@@ -1,4 +1,4 @@
-import { Box, Text, Icon } from "@chakra-ui/react";
+import { Box, Text, Icon, Card, CardBody, Heading, Stack } from "@chakra-ui/react";
 import { useDrag } from "react-dnd";
 import { IconType } from "react-icons";
 import { DragItemType } from "util/drag";
@@ -30,24 +30,21 @@ export default function FornitureIcon({ icon, name, currentFloor, id }: Fornitur
 	const ref = collected.isDragging ? dragPreviewRef : dragRef
 
 	return (
-		<Box
+		<Stack
 			ref={ref}
-			borderWidth="1px"
-			borderRadius="lg"
-			overflow="hidden"
-			padding="4"
-			display="flex"
-			alignItems="center"
 			boxShadow="md"
+			justifyContent={"center"}
+			alignItems={"center"}
+			p={4}
+			rounded={"lg"}
+			_hover={{
+				bg: "gray.100",
+			}}
+			w="80px"
+			h="80px"
 		>
-			<Icon as={icon} w={8} h={8} mr={4} />
-			<Text fontSize="lg" fontWeight="bold">
-				{name}
-			</Text>
-			<Text fontSize="sm" ml="auto">
-				{currentFloor ? `Floor ${currentFloor}` : ""}
-				{id ? `ID ${id}` : ""}
-			</Text>
-		</Box>
+			<Icon as={icon} w={8} h={8} />
+			<Heading size='sm'>{name}</Heading>
+		</Stack>
 	)
 }

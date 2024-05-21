@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, HStack, VStack } from "@chakra-ui/react";
 import { useDrop } from "react-dnd";
 import { DragItemType } from "util/drag";
 import FornitureIcon from "./FornitureIcon";
@@ -31,19 +31,20 @@ export default function DroppableFloor({ floorNo, items, onDrop }: DroppableFloo
 			bg={isOver ? "gray.100" : "white"}
 			minH={"6em"}
 		>
-
 			{/* Render the items */}
-			{items.map((item, index) => (
-				<Box key={index} mb={2}>
-					<FornitureIcon
-						key={index}
-						currentFloor={floorNo}
-						name={item.name}
-						icon={item.icon}
-						id={item.id}
-					/>
-				</Box>
-			))}
+			<HStack gap={2}>
+				{items.map((item, index) => (
+					<Box key={index} mb={2}>
+						<FornitureIcon
+							key={index}
+							currentFloor={floorNo}
+							name={item.name}
+							icon={item.icon}
+							id={item.id}
+						/>
+					</Box>
+				))}
+			</HStack>
 		</Box >
 	)
 }
