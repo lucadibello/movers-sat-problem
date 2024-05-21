@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Flex, HStack, Heading, Spinner, Stack, Text } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Flex, Heading, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useMovers } from "contexts/MoverContext";
 import { useEffect, useState } from "react";
 import { solve } from "services";
@@ -128,8 +128,6 @@ function Simulation({ simulationSteps, totalSteps }: { simulationSteps: Simulati
 	useEffect(() => {
 		setSimulationStep(simulationSteps[currentTimeStep])
 	}, [currentTimeStep, simulationSteps])
-
-	console.log("Simulation", simulationStep)
 
 	// Render the step
 	return (
