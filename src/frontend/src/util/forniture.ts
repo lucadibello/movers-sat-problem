@@ -1,18 +1,34 @@
 import { IconType } from "react-icons";
-import { FaBed, FaBicycle } from "react-icons/fa";
+import { FaArchive, FaBed, FaBicycle, FaCamera, FaCoffee, FaLaptop } from "react-icons/fa";
 
-type FornitureCardElement = {
+export type FornitureCardElement = {
 	name: string;
 	icon: IconType;
 }
 
 export const FORNITURE_CARDS: FornitureCardElement[] = [
 	{
-		"name": "Sofa",
-		"icon": FaBed
+		"name": "Laptop",
+		"icon": FaLaptop
 	},
 	{
 		"name": "Bicycle",
 		"icon": FaBicycle
+	},
+	{
+		"name": "Boxes",
+		"icon": FaArchive
+	},
+	{
+		"name": "Table",
+		"icon": FaBed
+	},
+	{
+		"name": "Camera",
+		"icon": FaCamera
+	},
+	{
+		"name": "Coffee",
+		"icon": FaCoffee
 	}
 ]
