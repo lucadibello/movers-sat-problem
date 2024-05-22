@@ -9,19 +9,19 @@ Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/
 ## Table of Contents<!-- omit in toc -->
 
 - [1. Problem description](#1-problem-description)
-  - [1.1. Constraints](#11-constraints)
+	- [1.1. Constraints](#11-constraints)
 - [2. Mathematical representation](#2-mathematical-representation)
-  - [2.1. Sets / Domains](#21-sets--domains)
-  - [2.2. Data](#22-data)
-    - [2.2.1. Input parameters](#221-input-parameters)
-    - [2.2.2. Variables describing the state of the system](#222-variables-describing-the-state-of-the-system)
-    - [2.2.2. Variables describing actions of the movers on the system](#222-variables-describing-actions-of-the-movers-on-the-system)
+	- [2.1. Sets / Domains](#21-sets--domains)
+	- [2.2. Data](#22-data)
+		- [2.2.1. Input parameters](#221-input-parameters)
+		- [2.2.2. Variables describing the state of the system](#222-variables-describing-the-state-of-the-system)
+		- [2.2.2. Variables describing actions of the movers on the system](#222-variables-describing-actions-of-the-movers-on-the-system)
 - [2.3. Action definitions](#23-action-definitions)
-  - [2.3. Constraints](#23-constraints)
+	- [2.3. Constraints](#23-constraints)
 - [3. Getting started](#3-getting-started)
 - [4. System design](#4-system-design)
-  - [4.1. Frontend - User Interface](#41-frontend---user-interface)
-  - [4.2. Backend - APIs and Solver](#42-backend---apis-and-solver)
+	- [4.1. Frontend - User Interface](#41-frontend---user-interface)
+	- [4.2. Backend - APIs and Solver](#42-backend---apis-and-solver)
 
 ## 1. Problem description
 
@@ -191,9 +191,18 @@ The backend, as previously mentioned, is responsible for receiving the problem i
 This is the structure of a call to the `/solve` endpoint on the backend started on the local machine:
 
 ```bash
-curl -X POST -H "Content-Type: application/json"
-      --data '{"max_t": 10, "forniture": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
-      http://localhost:5000/solve?m=2&n=5?max_t=10
+ccurl -X 'POST' \
+	'http://localhost:8000/api/v1/solve?n_movers=3&n_floors=3&max_steps=10' \
+	-H 'accept: application/json' \
+	-H 'Content-Type: application/json' \
+	-d '[
+		{
+		"name": "Table",
+		"floor": 1
+		},
+		{
+		"name": "Wardrobe",
+		"floor": 2
+		}
+	]'
 ```
-
-<!-- FIXME: we should only use POST parameters -->

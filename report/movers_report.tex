@@ -247,7 +247,7 @@ The user initiates the process by composing a form in the React-app. This form c
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{./images/System_Design.png}
-	\caption{Diagram of the User Interface}
+	\caption{System architecture diagram}
 	\label{fig:ui_diagram}
 \end{figure}
 
@@ -256,7 +256,7 @@ The backend, as previously mentioned, is responsible for receiving the problem i
 
 This is the structure of a call to the \texttt{/solve} endpoint on the backend started on the local machine:
 
-\begin{lstlisting}[language=bash, showspaces=false, breaklines=true]
+\begin{verbatim}
 curl -X 'POST' \
 	'http://localhost:8000/api/v1/solve?n_movers=3&n_floors=3&max_steps=10' \
 	-H 'accept: application/json' \
@@ -271,7 +271,7 @@ curl -X 'POST' \
 		"floor": 2
 		}
 	]'
-\end{lstlisting}
+\end{verbatim}
 
 The sequence diagram in Figure~\ref{fig:sequence-diagram} illustrates the interaction between a user, the React-app frontend via Custom API, and the backend solver service in a Movers SAT problem-solving application.
 
@@ -366,6 +366,8 @@ cd ./src/backend && make dev
 \section{Evaluation}
 
 First of all, we needed to thoroughly understand the problem at hand. To achieve this, we organized a comprehensive discussion involving all team members. This discussion aimed to elucidate the various aspects of the problem, ensuring that everyone had a clear and vivid understanding of the issue. We explored different perspectives, asked clarifying questions, and shared relevant insights, all of which contributed to a more profound and collective grasp of the problem's intricacies. Then we divided into smaller groups so that we could work on frontend and backend at the same time.
+
+\vspace{1em}
 
 \textbf{General Problems:}
 
