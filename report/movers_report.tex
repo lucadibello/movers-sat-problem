@@ -13,6 +13,7 @@
 \usepackage{fancyhdr}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{float}
 
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -28,6 +29,7 @@
   escapeinside={\%*}{*)},          
   keywordstyle=\color{codeblue},
   stringstyle=\color{codegray},
+  showspaces=false,
 }
 \pagestyle{fancy}
 \setlength{\headheight}{13.6pt}
@@ -57,18 +59,18 @@ When a mover is on the same floor as a piece of furniture, and decides to carry 
 \subsection{Input Parameters}
 
 \begin{enumerate}
-    \item $m \in \mathbb{N}^+$: number of movers
-     \item $n \in \mathbb{N}^+$: number of floors
-      \item $t_{max} \in \mathbb{N}^+$: maximum number of steps to solve the problem
+	\item $m \in \mathbb{N}^+$: number of movers
+	\item $n \in \mathbb{N}^+$: number of floors
+	\item $t_{max} \in \mathbb{N}^+$: maximum number of steps to solve the problem
 \end{enumerate}
 
 \subsection{Sets / Domains}
 
 \begin{itemize}
-    \item $M = \{m_1, m_2, ..., m_m\}$: set of movers
-    \item $L = \{l_1, l_2, ..., l_n\}$: set of floors ("levels") in the building
-    \item $F = \{f_1, f_2, ..., f_k\}$: set of forniture items
-    \item $T = \{t_1, t_2, ..., t_{max}\}$: set of timestamps from 1 to $t_{max}$
+	\item $M = \{m_1, m_2, ..., m_m\}$: set of movers
+	\item $L = \{l_1, l_2, ..., l_n\}$: set of floors ("levels") in the building
+	\item $F = \{f_1, f_2, ..., f_k\}$: set of forniture items
+	\item $T = \{t_1, t_2, ..., t_{max}\}$: set of timestamps from 1 to $t_{max}$
 \end{itemize}
 
 
@@ -77,16 +79,16 @@ When a mover is on the same floor as a piece of furniture, and decides to carry 
 \subsubsection{Variables describing the state of the system}
 
 \begin{itemize}
-    \item $atFloor(m, l, t) \in \{0, 1\}$, \textit{True} if mover $m$ is at floor $l$ at time $t$
-    \item $atFloorForniture(f, l, t) \in \{0, 1\}$, \textit{True} if forniture $f$ is at floor $l$ at time $t$
+	\item $atFloor(m, l, t) \in \{0, 1\}$, \textit{True} if mover $m$ is at floor $l$ at time $t$
+	\item $atFloorForniture(f, l, t) \in \{0, 1\}$, \textit{True} if forniture $f$ is at floor $l$ at time $t$
 \end{itemize}
 
 \subsubsection{Variables describing the actions of the movers}
 
 \begin{itemize}
-    \item $ascend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is ascending at time $t$
-    \item $descend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is descending at time $t$
-    \item $carry(m, f,  t) \in \{0, 1\}$, \textit{True} if mover $m$ is carrying forniture $f$ at time $t$
+	\item $ascend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is ascending at time $t$
+	\item $descend(m, t) \in \{0, 1\}$, \textit{True} if mover $m$ is descending at time $t$
+	\item $carry(m, f,  t) \in \{0, 1\}$, \textit{True} if mover $m$ is carrying forniture $f$ at time $t$
 \end{itemize}
 
 \subsection{Constraints}
@@ -96,136 +98,136 @@ When a mover is on the same floor as a piece of furniture, and decides to carry 
 This section describes how the actions of the movers alter the state of the system.
 
 \begin{enumerate}
-    \item $ascend(m, t)$: a mover can move up one floor at a time (except when at the last floor)
-    $$
-    l < n -1 \land atFloor(m, l, t) \land ascend(m, t) \implies atFloor(m, l+1, t+1) 
-    $$ 
-    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+	\item $ascend(m, t)$: a mover can move up one floor at a time (except when at the last floor)
+	      $$
+		      l < n -1 \land atFloor(m, l, t) \land ascend(m, t) \implies atFloor(m, l+1, t+1)
+	      $$
+	      $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-    \item $descend(m, t)$: a mover can move down one floor at a time (except when at the ground floor)
-    $$
-    l > 0 \land atFloor(m, l, t) \land descend(m, t) \implies atFloor(m, l-1, t+1) 
-    $$ 
-     $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+	\item $descend(m, t)$: a mover can move down one floor at a time (except when at the ground floor)
+	      $$
+		      l > 0 \land atFloor(m, l, t) \land descend(m, t) \implies atFloor(m, l-1, t+1)
+	      $$
+	      $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-     \item $carry(m, f, t)$: a mover can carry a piece of forniture if it is at the same floor as the mover. At the next time step, the mover and the forniture will be at the floor below (except when at the ground floor):
-    \begin{align*}
-    l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
-    atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
-\end{align*}
-     $\forall$ mover $m \in M$, forniture $f \in F$, floor $l \in L$, time $t \in T$
-    
+	\item $carry(m, f, t)$: a mover can carry a piece of forniture if it is at the same floor as the mover. At the next time step, the mover and the forniture will be at the floor below (except when at the ground floor):
+	      \begin{align*}
+		      l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
+		      atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
+	      \end{align*}
+	      $\forall$ mover $m \in M$, forniture $f \in F$, floor $l \in L$, time $t \in T$
+
 \end{enumerate}
 
 
 \subsubsection{Initial and Final Constraints}
 
 \begin{enumerate}
-    \item Initial constraint: movers start at the ground floor
+	\item Initial constraint: movers start at the ground floor
 
-    $$atFloor(m_i, 0, 0)$$
+	      $$atFloor(m_i, 0, 0)$$
 
-    $\forall$ mover $m \in M$
+	      $\forall$ mover $m \in M$
 
-    \item Final constraint: movers end at the ground floor
+	\item Final constraint: movers end at the ground floor
 
-    $$atFloor(m, 0, t_{max}) \land atFloorForniture(f, 0, t_{max})$$
+	      $$atFloor(m, 0, t_{max}) \land atFloorForniture(f, 0, t_{max})$$
 
-     $\forall$ mover $m \in M$, forniture $f \in F$
-    
+	      $\forall$ mover $m \in M$, forniture $f \in F$
 
-    
+
+
 \end{enumerate}
 
 \subsubsection{Other Constraints}
 
 \begin{enumerate}
-    \item Each mover is exactly at one floor at a time
+	\item Each mover is exactly at one floor at a time
 
-    \begin{itemize}
-        \item Each mover is at least at one floor
-        $$ \bigvee_{m \in M, l \in L, t\in T} atFloor(m, l, t) $$
+	      \begin{itemize}
+		      \item Each mover is at least at one floor
+		            $$ \bigvee_{m \in M, l \in L, t\in T} atFloor(m, l, t) $$
 
-        \item A mover cannot be at more than one floor
-        $$ atFloor(m, l_1, t) \implies \lnot atFloor(m, l_2, t) $$
+		      \item A mover cannot be at more than one floor
+		            $$ atFloor(m, l_1, t) \implies \lnot atFloor(m, l_2, t) $$
 
-        $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$, time $t \in T$
-    \end{itemize}
+		            $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$, time $t \in T$
+	      \end{itemize}
 
-    \item Each forniture is exactly at one floor at a time
+	\item Each forniture is exactly at one floor at a time
 
-    \begin{itemize}
-        \item Each forniture is at least at one floor
-        $$ \bigvee_{f \in F, l \in L, t\in T} atFloorForniture(f, l, t) $$
+	      \begin{itemize}
+		      \item Each forniture is at least at one floor
+		            $$ \bigvee_{f \in F, l \in L, t\in T} atFloorForniture(f, l, t) $$
 
-        \item A forniture cannot be at more than one floor
-        $$ atFloorForniture(f, l_1, t) \implies \lnot atFloorForniture(f, l_2, t) $$
+		      \item A forniture cannot be at more than one floor
+		            $$ atFloorForniture(f, l_1, t) \implies \lnot atFloorForniture(f, l_2, t) $$
 
-        $\forall$ forniture $f \in F$, floors $l_1 \neq l_2 \in L$, time $t \in T$
-    \end{itemize}
+		            $\forall$ forniture $f \in F$, floors $l_1 \neq l_2 \in L$, time $t \in T$
+	      \end{itemize}
 
-    \item If a mover is not ascending, descending, or carrying it stays at the same floor
+	\item If a mover is not ascending, descending, or carrying it stays at the same floor
 
-    $$atFloor(m,l,t) \land \lnot ascend(m, t) \land \lnot descend(m, t) \land \bigwedge_{f \in F} \lnot carry(m, f, t) \implies atFloor(m,l, t+1) $$
+	      $$atFloor(m,l,t) \land \lnot ascend(m, t) \land \lnot descend(m, t) \land \bigwedge_{f \in F} \lnot carry(m, f, t) \implies atFloor(m,l, t+1) $$
 
-    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
+	      $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-    \item If a forniture is not being carried, it stays at the same floor
+	\item If a forniture is not being carried, it stays at the same floor
 
-    $$atFloorForniture(f, l, t) \land \bigwedge_{m \in M} \lnot carry(m, f, t) \implies atFloorForniture(f, l, t + 1)$$
+	      $$atFloorForniture(f, l, t) \land \bigwedge_{m \in M} \lnot carry(m, f, t) \implies atFloorForniture(f, l, t + 1)$$
 
-    $\forall$ forniture $f \in F$, floor $l \in L$, time $t \in T$
+	      $\forall$ forniture $f \in F$, floor $l \in L$, time $t \in T$
 
-    \item Each mover can do only one action at a time
+	\item Each mover can do only one action at a time
 
-    \begin{itemize}
-        \item $ascend(m, t) \implies \lnot descend(m, t)$
-        \item $ascend(m, t) \implies \lnot carry(m, f, t)$
-        \item $descend(m, t) \implies \lnot ascend(m, t)$
-        \item $descend(m, t) \implies \lnot carry(m, f, t)$
-        \item $carry(m, f, t) \implies \lnot ascend(m, t)$
-        \item $carry(m, f, t) \implies \lnot descend(m, t)$
-    \end{itemize}
+	      \begin{itemize}
+		      \item $ascend(m, t) \implies \lnot descend(m, t)$
+		      \item $ascend(m, t) \implies \lnot carry(m, f, t)$
+		      \item $descend(m, t) \implies \lnot ascend(m, t)$
+		      \item $descend(m, t) \implies \lnot carry(m, f, t)$
+		      \item $carry(m, f, t) \implies \lnot ascend(m, t)$
+		      \item $carry(m, f, t) \implies \lnot descend(m, t)$
+	      \end{itemize}
 
-    $\forall$ mover $m \in M$, floor $l \in L$, forniture $f \in F$, time $t \in T$
+	      $\forall$ mover $m \in M$, floor $l \in L$, forniture $f \in F$, time $t \in T$
 
-    \item Each mover can carry at most one piece of forniture
+	\item Each mover can carry at most one piece of forniture
 
-    $$ carry(m, f_1, t) \implies \lnot carry(m, f_2, t)$$
+	      $$ carry(m, f_1, t) \implies \lnot carry(m, f_2, t)$$
 
-    $\forall$ mover $m\in M$, forniture $f_1 \neq f_2 \in F$, time $t \in T$
+	      $\forall$ mover $m\in M$, forniture $f_1 \neq f_2 \in F$, time $t \in T$
 
-    \item A piece of forniture can be carried by only one mover
+	\item A piece of forniture can be carried by only one mover
 
-    $$ carry(m_1, f, t) \implies \lnot carry(m_2, f, t)$$
+	      $$ carry(m_1, f, t) \implies \lnot carry(m_2, f, t)$$
 
-    $\forall$ mover $m_1 \neq m_2 \in M$, forniture $f\in F$, time $t \in T$
+	      $\forall$ mover $m_1 \neq m_2 \in M$, forniture $f\in F$, time $t \in T$
 
-    \item Movers cannot ascend if they are at the top floor
+	\item Movers cannot ascend if they are at the top floor
 
-    $$atFloor(m, n-1, t) \implies \lnot ascend(m, t)$$
+	      $$atFloor(m, n-1, t) \implies \lnot ascend(m, t)$$
 
-    $\forall$ mover $m \in M$, time $t \in T$
-    
-    \item Movers cannot descend if they are at the ground floor
+	      $\forall$ mover $m \in M$, time $t \in T$
 
-    $$atFloor(m, 0, t) \implies \lnot descend(m, t)$$
+	\item Movers cannot descend if they are at the ground floor
 
-    $\forall$ mover $m \in M$, time $t \in T$
+	      $$atFloor(m, 0, t) \implies \lnot descend(m, t)$$
 
-    \item A mover has to be on the same floor as an item in order to carry it
+	      $\forall$ mover $m \in M$, time $t \in T$
 
-    $$atFloor(m, l_1,t) \land atFloorForniture(f, l_2, t) \implies \lnot carry(m, f, t)$$
+	\item A mover has to be on the same floor as an item in order to carry it
 
-    $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$ , forniture $f \in F$, time $t \in T$
+	      $$atFloor(m, l_1,t) \land atFloorForniture(f, l_2, t) \implies \lnot carry(m, f, t)$$
 
-    \item A mover cannot carry an item which is at the ground floor
+	      $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$ , forniture $f \in F$, time $t \in T$
 
-    $$atFloorForniture(f, 0, t) \implies \lnot carry(m, f, t)$$
+	\item A mover cannot carry an item which is at the ground floor
 
-    $\forall$ mover $m \in M$, forniture $f \in F$, time $t \in T$
-    
-    
+	      $$atFloorForniture(f, 0, t) \implies \lnot carry(m, f, t)$$
+
+	      $\forall$ mover $m \in M$, forniture $f \in F$, time $t \in T$
+
+
 \end{enumerate}
 
 \pagebreak
@@ -242,12 +244,11 @@ To facilitate interaction with the backend API, we have implemented a custom lib
 
 The user initiates the process by composing a form in the React-app. This form contains information about the problem setup, such as the number of movers, floors, maximum steps, and furniture details. Once the form is completed, the React-app sends an HTTP POST request to the backend solver service at the \texttt{/solve} endpoint. This request includes the data provided by the user. This form is used to validate user inputs before sending data to the backend. It ensures that the data received by the backend is correct and reduces the likelihood of errors, providing a smoother user experience.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{ ./images/System_Design.png 
-}
-    \caption{Diagram of the User Interface}
-    \label{fig:ui_diagram}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./images/System_Design.png}
+	\caption{Diagram of the User Interface}
+	\label{fig:ui_diagram}
 \end{figure}
 
 \subsection{Backend - APIs and Solver}
@@ -255,40 +256,51 @@ The backend, as previously mentioned, is responsible for receiving the problem i
 
 This is the structure of a call to the \texttt{/solve} endpoint on the backend started on the local machine:
 
-\begin{verbatim}
-curl -X POST -H "Content-Type: application/json" \
-      --data '{"max_t": 10, "furniture": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}' \
-      http://localhost:5000/solve?m=2&n=5&max_t=10
-\end{verbatim}
+\begin{lstlisting}[language=bash, showspaces=false, breaklines=true]
+curl -X 'POST' \
+	'http://localhost:8000/api/v1/solve?n_movers=3&n_floors=3&max_steps=10' \
+	-H 'accept: application/json' \
+	-H 'Content-Type: application/json' \
+	-d '[
+		{
+		"name": "Table",
+		"floor": 1
+		},
+		{
+		"name": "Wardrobe",
+		"floor": 2
+		}
+	]'
+\end{lstlisting}
 
 The sequence diagram in Figure~\ref{fig:sequence-diagram} illustrates the interaction between a user, the React-app frontend via Custom API, and the backend solver service in a Movers SAT problem-solving application.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{ ./images/sequenceDiagram.png }
-    \caption{Sequence Diagram}
-    \label{fig:sequence-diagram}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/sequenceDiagram.png}
+	\caption{Sequence Diagram}
+	\label{fig:sequence-diagram}
 \end{figure}
 
- Below is a step-by-step explanation of the process:
+Below is a step-by-step explanation of the process:
 
 \begin{enumerate}
-   
-    \item \textbf{Backend Solver Service}:
-    \begin{itemize}
-        \item Upon receiving the request, the backend solver service is activated and begins processing the request.
-        \item \textbf{Data Validation}: The backend performs data validation to ensure that the input parameters (number of movers, floors, maximum steps, and furniture details) are valid and correctly formatted.
-        \item \textbf{Problem Building}: After successful validation, the backend constructs the problem by defining the necessary constraints and setup required to solve the Movers SAT problem.
-        \item \textbf{Problem Solving}: The backend then runs the solver to compute the solution to the problem. This involves calculating the optimal steps and actions needed to move the furniture as specified.
-    \end{itemize}
-    \item \textbf{Response to React-app}:
-    \begin{itemize}
-        \item Once the problem is solved, the backend sends the solution back to the React-app. This response includes the computed steps and actions for the movers and furniture.
-    \end{itemize}
-    \item \textbf{Display Solution}:
-    \begin{itemize}
-        \item The React-app receives the solution and displays it to the user. The user can now see the detailed steps and actions taken to solve the Movers SAT problem.
-    \end{itemize}
+
+	\item \textbf{Backend Solver Service}:
+	      \begin{itemize}
+		      \item Upon receiving the request, the backend solver service is activated and begins processing the request.
+		      \item \textbf{Data Validation}: The backend performs data validation to ensure that the input parameters (number of movers, floors, maximum steps, and furniture details) are valid and correctly formatted.
+		      \item \textbf{Problem Building}: After successful validation, the backend constructs the problem by defining the necessary constraints and setup required to solve the Movers SAT problem.
+		      \item \textbf{Problem Solving}: The backend then runs the solver to compute the solution to the problem. This involves calculating the optimal steps and actions needed to move the furniture as specified.
+	      \end{itemize}
+	\item \textbf{Response to React-app}:
+	      \begin{itemize}
+		      \item Once the problem is solved, the backend sends the solution back to the React-app. This response includes the computed steps and actions for the movers and furniture.
+	      \end{itemize}
+	\item \textbf{Display Solution}:
+	      \begin{itemize}
+		      \item The React-app receives the solution and displays it to the user. The user can now see the detailed steps and actions taken to solve the Movers SAT problem.
+	      \end{itemize}
 \end{enumerate}
 
 This diagram captures the entire workflow from user input to solution display, highlighting the key interactions and processes involved in solving the Movers SAT problem using the React-app and backend solver service.
@@ -300,8 +312,8 @@ This guide will help you to install the tool and run your first network.
 \subsection{Requirements}
 
 \begin{itemize}
-    \item Python 3.6 or higher
-    \item \texttt{pip} (Python package manager) or \texttt{conda} (Anaconda package manager)
+	\item Python 3.6 or higher
+	\item \texttt{pip} (Python package manager) or \texttt{conda} (Anaconda package manager)
 \end{itemize}
 
 \subsection{Step 1: Clone the repository}
@@ -358,28 +370,22 @@ First of all, we needed to thoroughly understand the problem at hand. To achieve
 \textbf{General Problems:}
 
 \begin{enumerate}
-    \item We encountered some difficulty in identifying all the edge cases of the problem due to the lack of clarity in certain descriptions.
-    \item 
+	\item As none of us had prior experience with the z3-solver, we had to spend a considerable amount of time learning how to use it effectively.
+	\item We encountered some difficulty in identifying all the edge cases of the problem due to the lack of clarity in certain descriptions.
 \end{enumerate}
 
 \textbf{Frontend Problems:}
 
 \begin{enumerate}
-    \item Due to our initial unfamiliarity with the React library, we required a considerable amount of time to learn how to utilize it effectively to achieve the desired results.
+	\item Due to our initial unfamiliarity with the React library, we required a considerable amount of time to learn how to utilize it effectively to achieve the desired results.
+	\item Offering a user-friendly interface that is both intuitive and easy to use was a significant challenge. We had to ensure that the interface was easy to navigate and that users could input the necessary data without any confusion.
 \end{enumerate}
 
 \textbf{Backend Problems:}
 
 \begin{enumerate}
-    \item 
+	\item We initially thought that certain constraints were not necessary, but after further analysis, we realized that they were crucial for the problem's correct solution.
+	\item The backend API was challenging to implement as it required additional features such as data validation, error handling, and response formatting, features that we initially overlooked.
 \end{enumerate}
 
-\end{document}
-
-\pagebreak
-
-\section{Problems and Conclusion}
-
-\bibliographystyle{abbrv}
-\bibliography{references}  % need to put bibtex references in references.bib 
 \end{document}
