@@ -96,25 +96,28 @@ to the floor below.
 This section describes how the actions of the movers alter the state of
 the system.
 
-1. $ascend(m, t)$: a mover can move up one floor at a time (except when
-    at the last floor)
+1. $ascend(m, t)$: a mover can move up one floor at a time (except when at the last floor):
+
     $$l < n -1 \land atFloor(m, l, t) \land ascend(m, t) \implies atFloor(m, l+1, t+1)$$
     $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
 2. $descend(m, t)$: a mover can move down one floor at a time (except
-    when at the ground floor)
+    when at the ground floor):
+
     $$l > 0 \land atFloor(m, l, t) \land descend(m, t) \implies atFloor(m, l-1, t+1)$$
     $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
 3. $carry(m, f, t)$: a mover can carry a piece of forniture if it is at
     the same floor as the mover. At the next time step, the mover and
     the forniture will be at the floor below (except when at the ground
-    floor): $$\begin{aligned}
+    floor):
+
+	$$\begin{aligned}
                   l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
                   atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
 
-    \end{aligned}$$ $\forall$ mover $m \in M$, forniture $f \in F$,
-    floor $l \in L$, time $t \in T$
+    \end{aligned}$$
+	$\forall$ mover $m \in M$, forniture $f \in F$, floor $l \in L$, time $t \in T$
 
 #### B. Initial and Final Constraints
 
