@@ -1,208 +1,356 @@
-# Movers<!-- omit in toc -->
+# Movers SAT problem
 
-Theory of Computation, Spring 2024
+This project presents a complete solution to the *movers satisfiability problem* leveraging [z3-solver](https://github.com/Z3Prover/z3). This project provides a complete frontend and backend system that is able to receive a problem instance from the user, solve it using the z3-solver, and return the solution to the user. The frontend is built using [React](https://react.dev/) and [Chakra UI](https://v2.chakra-ui.com/), while the backend is implemented using [FastAPI](https://fastapi.tiangolo.com/).
 
-## DEV NOTES<!-- omit in toc -->
+To have a complete overview of how the various parts of the system interact with each other, please refer to the [System Design](#system-design) section.
 
-Python z3-solver examples: <https://github.com/Z3Prover/z3/tree/master/examples/python>
+## Problem Description
 
-## Table of Contents<!-- omit in toc -->
+In the *movers satisfiability problem*, a moving company is tasked with
+relocating all furniture from a building with multiple floors. The
+objective is to move all furniture to the ground floor within a given
+time frame (maximum number of time steps). For this task, the company
+has a team of movers of size $m$, and each mover is identified with a
+unique name, and can move up or down one floor at a time.
 
-- [1. Problem description](#1-problem-description)
-	- [1.1. Constraints](#11-constraints)
-- [2. Mathematical representation](#2-mathematical-representation)
-	- [2.1. Sets / Domains](#21-sets--domains)
-	- [2.2. Data](#22-data)
-		- [2.2.1. Input parameters](#221-input-parameters)
-		- [2.2.2. Variables describing the state of the system](#222-variables-describing-the-state-of-the-system)
-		- [2.2.2. Variables describing actions of the movers on the system](#222-variables-describing-actions-of-the-movers-on-the-system)
-- [2.3. Action definitions](#23-action-definitions)
-	- [2.3. Constraints](#23-constraints)
-- [3. Getting started](#3-getting-started)
-- [4. System design](#4-system-design)
-	- [4.1. Frontend - User Interface](#41-frontend---user-interface)
-	- [4.2. Backend - APIs and Solver](#42-backend---apis-and-solver)
+The building has $n$ floors, each identified by a unique integer number.
+The building contains a set of furniture $F = {f1,f2,...,fn}$ to be
+moved. Each piece of furniture is located within the floors of the
+building, and there could be more than one piece of furniture on the
+same floor. The movers are initially located on the ground floor of the
+building, and they must move all furniture to the ground floor within a
+given time frame. By the end of the time frame, all movers and all
+furniture must be located on the ground floor in order to solve the
+problem.
 
-## 1. Problem description
+When a mover is on the same floor as a piece of furniture, and decides
+to carry it, the mover and the furniture in question are moved together
+to the floor below.
 
-In the _movers_ satisfability problem, a moving company is tasked with relocating all furniture from a building with multiple floors. The objective is to move all furniture to the ground floor within a given time frame (maximum number of time steps). For this task, the company has a team of movers of size $m$, and each mover is identified with a unique name, and can move up or down one floor at a time.
+## SAT mathematical model
 
-The building has $n$ floors, each identifier by a unique integer number. The building contains a set of forniture $F = \lbrace f_1, f_2, \ldots, f_n \rbrace$ to be moved. Each piece of forniture is located within the floors of the building, and there could be more than one piece of forniture in the same floor. The movers are initially located at the ground floor of the building, and they must move all forniture to the ground floor within a given time frame. By the end of the time frame, all movers and all forniture must be located at the ground floor in order to solve the problem.
+### Input Parameters
 
-When a mover is at the same floor as a piece of forniture, and decides to carry it, the mover and the forniture in question are moved together to the floor below.
+1. $m \in \mathbb{N}^+$: number of movers
 
-### 1.1. Constraints
+2. $n \in \mathbb{N}^+$: number of floors
 
-From the problem description, the following constraints can be identified:
+3. $t_{max} \in \mathbb{N}^+$: maximum number of steps to solve the
+    problem
 
-1. The movers start at floor 0
-2. Each mover can either move up or down one floor at a time, or stay in the same floor.
-3. Each mover can carry at most one piece of forniture at a time. To carry a piece of forniture, the mover must be at the same floor as the forniture.
-4. The carrying of forniture by the movers is not mandatory. A mover can move to a different floor without carrying any forniture.
-5. At ground floor, the movers can only ascend to the first floor, as there are no floors below the ground floor.
-6. Movers are not allowed to carry forniture that is already at the ground floor.
-7. The movers and the forniture must be at the ground floor at maximum time step $max_t$. If they are able to reach the ground floor before $max_t$, the problem is considered also solved.
+### Sets / Domains
 
-## 2. Mathematical representation
+- $M = \{m_1, m_2, ..., m_m\}$: set of movers
 
-### 2.1. Sets / Domains
+- $L = \{l_1, l_2, ..., l_n\}$: set of floors (\"levels\") in the
+    building
 
-- $M = \lbrace m_1, m_2, \ldots, m_m \rbrace$: set of mover identifiers
-- $L = \lbrace l_1, l_2, \ldots, l_n \rbrace$: set of floor identifiers ("levels") in the building
-- $T = \lbrace t_1, t_2, \ldots, t_{max_t} \rbrace$: set of time step identifiers from $1$ to $max_t$
-- $F = \lbrace f_1, f_2, \ldots, f_n \rbrace$: set of forniture to be moved by the movers
+- $F = \{f_1, f_2, ..., f_k\}$: set of forniture items
 
-### 2.2. Data
+- $T = \{t_1, t_2, ..., t_{max}\}$: set of timestamps from 1 to
+    $t_{max}$
 
-#### 2.2.1. Input parameters
+### Variables
 
-- $m \in \mathcal{N^{+}}$
+#### Variables describing the state of the system
 
-> number of available movers to move the forniture
+- $atFloor(m, l, t) \in \{0, 1\}$, *True* if mover $m$ is at floor $l$
+    at time $t$
 
-- $n \in \mathcal{N^{+}}$
+- $atFloorForniture(f, l, t) \in \{0, 1\}$, *True* if forniture $f$ is
+    at floor $l$ at time $t$
 
-> number of floors in the building
+#### Variables describing the actions of the movers
 
-- $max_t \in \mathcal{N^{+}}$
+- $ascend(m, t) \in \{0, 1\}$, *True* if mover $m$ is ascending at
+    time $t$
 
-> maximum number of time steps to solve correctly the problem
+- $descend(m, t) \in \{0, 1\}$, *True* if mover $m$ is descending at
+    time $t$
 
-#### 2.2.2. Variables describing the state of the system
+- $carry(m, f,  t) \in \{0, 1\}$, *True* if mover $m$ is carrying
+    forniture $f$ at time $t$
 
-- $atFloor(m_i, l_j, t) \in \lbrace 0, 1 \rbrace \ \forall \ l_j \in L, \ m_i \in M$
+### Constraints
 
-> true if mover $m_i$ is at floor $l_j$ at time $t$
+#### Action Definition
 
-- $atFloorForniture(f_i, l_j, t) \in \lbrace 0, 1 \rbrace \ \forall \ l_j \in L, \ f_i \in F$:
+This section describes how the actions of the movers alter the state of
+the system.
 
-> `true` if forniture $f_i$ is at floor $l_j$ at time $t$, otherwise `false`
+1. $ascend(m, t)$: a mover can move up one floor at a time (except when
+    at the last floor)
+    $$l < n -1 \land atFloor(m, l, t) \land ascend(m, t) \implies atFloor(m, l+1, t+1)$$
+    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-#### 2.2.2. Variables describing actions of the movers on the system
+2. $descend(m, t)$: a mover can move down one floor at a time (except
+    when at the ground floor)
+    $$l > 0 \land atFloor(m, l, t) \land descend(m, t) \implies atFloor(m, l-1, t+1)$$
+    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-- $ascend(m_i, t) \in \lbrace 0, 1 \rbrace \ \forall \ m_i \in M \ m_i \in M, \ t \in T$
+3. $carry(m, f, t)$: a mover can carry a piece of forniture if it is at
+    the same floor as the mover. At the next time step, the mover and
+    the forniture will be at the floor below (except when at the ground
+    floor): $$\begin{aligned}
+                  l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
+                  atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
 
-> true if mover $m_i$ is ascending at time $t$
+    \end{aligned}$$ $\forall$ mover $m \in M$, forniture $f \in F$,
+    floor $l \in L$, time $t \in T$
 
-- $descend(m_i, t) \in \lbrace 0, 1 \rbrace \ \forall \ m_i \in M \ m_i \in M, \ t \in T$
+#### Initial and Final Constraints
 
-> true if mover $m_i$ is descending at time $t$
+1. Initial constraint: movers start at the ground floor
 
-- $carry(m_i, f_j, t) \in \lbrace 0, 1 \rbrace \ \forall \ m_i \in M \ f_j \in F, \ t \in T$
+    $$atFloor(m_i, 0, 0)$$
 
-> true if mover $m_i$ is carrying forniture $f_k$ at time $t$, otherwise false
+    $\forall$ mover $m \in M$
 
-## 2.3. Action definitions
+2. Final constraint: movers end at the ground floor
 
-This section describes how the actions of the movers alter the state of the system.
+    $$atFloor(m, 0, t_{max}) \land atFloorForniture(f, 0, t_{max})$$
 
-1. Ascend: a mover can move up one floor at a time (except when at the last floor):
+    $\forall$ mover $m \in M$, forniture $f \in F$
 
-   - $\exists \ l \in L,\ m_i \in M: l < n \land atFloor(m_i, l, t) \land ascend(m_j, t) \implies atFloor(m_i, l+1, t+1)$
+#### Other Constraints
 
-2. Descend: a mover can move down one floor at a time (except when at the ground floor)
+1. Each mover is exactly at one floor at a time
 
-   - $\exists \ l \in L,\ m_i \in M: l > 0 \land atFloor(m_i, l, t) \land descend(m_i, t) \implies atFloor(m_i, f-1, t+1)$
+    - Each mover is at least at one floor
+        $$\bigvee_{m \in M, l \in L, t\in T} atFloor(m, l, t)$$
 
-3. Carry: a mover can carry a piece of forniture if it is at the same floor as the mover. At the next time step, the mover and the forniture will be at the floor below:
+    - A mover cannot be at more than one floor
+        $$atFloor(m, l_1, t) \implies \lnot atFloor(m, l_2, t)$$
 
-   - $\exists \ l \in L,\ m_i \in M,\ f_j \in F: f > 0 \land atFloor(m_i, f, t) \land atFloorForniture(f_j, f, t) \land carry(m_i, f_j, t) \implies atFloor(m_i, l-1, t+1) \land atFloorForniture(f_j, f-1, t+1)$
+        $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$, time
+        $t \in T$
 
-### 2.3. Constraints
+2. Each forniture is exactly at one floor at a time
 
-- Initial constrant: movers start at the ground floor
+    - Each forniture is at least at one floor
+        $$\bigvee_{f \in F, l \in L, t\in T} atFloorForniture(f, l, t)$$
 
-$\forall m_i \in M: atFloor(m_i, 0, 0) = 1$
+    - A forniture cannot be at more than one floor
+        $$atFloorForniture(f, l_1, t) \implies \lnot atFloorForniture(f, l_2, t)$$
 
-- Final constrant: movers end at the ground floor
+        $\forall$ forniture $f \in F$, floors $l_1 \neq l_2 \in L$, time
+        $t \in T$
 
-$\forall m_i \in M , \ f_j in F: atFloor(m_i, 0, max_t) \land atFloorForniture(f_j, 0, max_t) = 1$
+3. If a mover is not ascending, descending, or carrying it stays at the
+    same floor
 
-- Each mover is exactly at one floor at a time
+    $$atFloor(m,l,t) \land \lnot ascend(m, t) \land \lnot descend(m, t) \land \bigwedge_{f \in F} \lnot carry(m, f, t) \implies atFloor(m,l, t+1)$$
 
-  $\forall t \in T,\ m_i \in M: \sum_{l_j \in L} atFloor(m_i, l_j, t) = 1$
+    $\forall$ mover $m \in M$, floor $l \in L$, time $t \in T$
 
-- Each mover stays at the same floor if not ascending, descending, or carrying something
+4. If a forniture is not being carried, it stays at the same floor
 
-$\forall t \in T, \ m_i \in M \ l_j \in L, \ f_k \in F: atFloor(m_i, l_j, t) \land \lnot ascending(m_i, t) \land \lnot descending(m_i, t) \lnot carry(m_i, f_k, t) \implies atFloor(m_i, l_j, t + 1)$
+    $$atFloorForniture(f, l, t) \land \bigwedge_{m \in M} \lnot carry(m, f, t) \implies atFloorForniture(f, l, t + 1)$$
 
-- Each forniture is exactly at one floor at a time
+    $\forall$ forniture $f \in F$, floor $l \in L$, time $t \in T$
 
-$\forall t \in T,\ f_i \in F: \sum_{l_j \in L} atFloorForniture(f_i, l_j, t) = 1$
+5. Each mover can do only one action at a time
 
-- Each mover can only ascend or descend at a time
+    - $ascend(m, t) \implies \lnot descend(m, t)$
 
-  $\forall t \in T,\ m_i \in M,\ f_j \in F: \forall m_i \in M: ascend(m_i, t) + descend(m_i, t) + carry(m_i, f_j, t) \leq 1$
+    - $ascend(m, t) \implies \lnot carry(m, f, t)$
 
-- Each mover can only carry one piece of forniture at a time
+    - $descend(m, t) \implies \lnot ascend(m, t)$
 
-  $\forall t \in T,\ m_i \in M: \sum_{f_j \in F} carry(m_i, f_j, t) \leq 1$
+    - $descend(m, t) \implies \lnot carry(m, f, t)$
 
-- Each piece of forniture can be carried by at most one mover
+    - $carry(m, f, t) \implies \lnot ascend(m, t)$
 
-  $\forall t \in T,\ f_i \in F: \sum_{m_j \in M} carry(m_j, f_i, t) \leq 1$ 
+    - $carry(m, f, t) \implies \lnot descend(m, t)$
 
+    $\forall$ mover $m \in M$, floor $l \in L$, forniture $f \in F$,
+    time $t \in T$
 
-- If a forniture is not carried by anyone, it stays at the same floor
+6. Each mover can carry at most one piece of forniture
 
-$\forall t \in T,\ m_i \in M , \ l_j \in L, \ f_k \in F: atFloorForniture(f_k, l_j, t) \land \lnot carry(m_i, f_k, t) \implies atFloorForniture(f_k, l_j, t + 1)$
+    $$carry(m, f_1, t) \implies \lnot carry(m, f_2, t)$$
 
+    $\forall$ mover $m\in M$, forniture $f_1 \neq f_2 \in F$, time
+    $t \in T$
 
-- A mover cannot carry an item which is already at the ground floor
+7. A piece of forniture can be carried by only one mover
 
-  $\forall t \in T,\ m_i \in M: \forall f_k \in F: carry(m_i, f_k, t) \land atFloorForniture(f_k, 0, t) = \bot$
+    $$carry(m_1, f, t) \implies \lnot carry(m_2, f, t)$$
 
-- A mover cannot carry an item which is not at the same floor as the mover
+    $\forall$ mover $m_1 \neq m_2 \in M$, forniture $f\in F$, time
+    $t \in T$
 
-  $\forall t \in T,\ l \in L, m_i \in M, f_j \in F: carry(m_i, f_j, t)$ and $atFloor(m_i, l, t) \land \lnot atFloorForniture(f_j, l, t) = \bot$
+8. Movers cannot ascend if they are at the top floor
 
-> Already enforced by the `carry` action definition.
+    $$atFloor(m, n-1, t) \implies \lnot ascend(m, t)$$
 
-- A mover cannot ascend from the last floor (no more floors available)
+    $\forall$ mover $m \in M$, time $t \in T$
 
-  $\forall t \in T,\ m_i \in M: ascend(m_i, t) \land atFloor(m_i, n, t) = \bot$
+9. Movers cannot descend if they are at the ground floor
 
-> Already enforced by the `ascend` action definition
+    $$atFloor(m, 0, t) \implies \lnot descend(m, t)$$
 
-- A mover cannot descend from the ground floor (no more floors available)
+    $\forall$ mover $m \in M$, time $t \in T$
 
-  $\forall t \in T,\ m_i \in M: descend(m_i, t) \land atFloor(m_i, 0, t) = \bot$
+10. A mover has to be on the same floor as an item in order to carry it
 
-> Already enforced by the `descend` action definition
+    $$atFloor(m, l_1,t) \land atFloorForniture(f, l_2, t) \implies \lnot carry(m, f, t)$$
 
-## 3. Getting started
+    $\forall$ mover $m \in M$, floors $l_1 \neq l_2 \in L$ , forniture
+    $f \in F$, time $t \in T$
 
-Please, refer to the [Getting Started](./docs/getting-started.md) guide to learn how to properly run the tool.
+11. A mover cannot carry an item which is at the ground floor
 
-## 4. System design
+    $$atFloorForniture(f, 0, t) \implies \lnot carry(m, f, t)$$
 
-The system has been divided into a frontend and a backend. The frontend is responsible for receiving the problem instance from the user, and sending it to the backend for processing. The backend will receive the problem data from a specialized API, and will solve the problem using the z3-solver. The solution will be sent back to the frontend as a response.
+    $\forall$ mover $m \in M$, forniture $f \in F$, time $t \in T$
 
-In the following sections, the frontend and backend will be described in more detail.
+## System Design
 
-### 4.1. Frontend - User Interface
+The system has been divided into a frontend and a backend. The frontend
+is responsible for receiving the problem instance from the user and
+sending it to the backend for processing. The backend will receive the
+problem data from a specialized API and will solve the problem using the
+z3-solver. The solution will be sent back to the frontend as a response.
 
-> add meaningful description here
+In the following sections, the frontend and backend will be described in
+more detail.
 
-### 4.2. Backend - APIs and Solver
+### Frontend - User Interface
 
-The backend, as previously mentioned, is responsible for receiving the problem instance from the frontend, and solving it using the z3-solver. The backend exposes a single endpoint `/solve` which receives a JSON object containing the problem instance, and returns a JSON object with the solution.
+The frontend of our system is built using Chakra UI, a simple, modular,
+and accessible component library that provides the building blocks
+needed to build React applications. Chakra UI ensures a consistent look
+and feel across the application and enhances the development experience
+with its extensive set of customizable components.
 
-This is the structure of a call to the `/solve` endpoint on the backend started on the local machine:
+To facilitate interaction with the backend API, we have implemented a
+custom library. This library simplifies API calls and manages the
+communication between the frontend and backend, ensuring a seamless and
+efficient data exchange.
+
+The user initiates the process by composing a form in the React-app.
+This form contains information about the problem setup, such as the
+number of movers, floors, maximum steps, and furniture details. Once the
+form is completed, the React-app sends an HTTP POST request to the
+backend solver service at the `/solve` endpoint. This request includes
+the data provided by the user. This form is used to validate user inputs
+before sending data to the backend. It ensures that the data received by
+the backend is correct and reduces the likelihood of errors, providing a
+smoother user experience.
+
+![System architecture
+diagram](./report/images/System_Design.png)
+
+### Backend - APIs and Solver
+
+The backend, as previously mentioned, is responsible for receiving the
+problem instance from the frontend and solving it using the z3-solver.
+The backend exposes a single endpoint `/solve` which receives a JSON
+object containing the problem instance and returns a JSON object with
+the solution.
+
+This `curl` command showcases an example of how to interact with the `/solve` endpoint using the backend API:
 
 ```bash
-ccurl -X 'POST' \
-	'http://localhost:8000/api/v1/solve?n_movers=3&n_floors=3&max_steps=10' \
-	-H 'accept: application/json' \
-	-H 'Content-Type: application/json' \
-	-d '[
-		{
-		"name": "Table",
-		"floor": 1
-		},
-		{
-		"name": "Wardrobe",
-		"floor": 2
-		}
-	]'
+    curl -X 'POST' \
+        'http://localhost:8000/api/v1/solve?n_movers=3&n_floors=3&max_steps=10' \
+        -H 'accept: application/json' \
+        -H 'Content-Type: application/json' \
+        -d '[
+            {
+            "name": "Table",
+            "floor": 1
+            },
+            {
+            "name": "Wardrobe",
+            "floor": 2
+            }
+        ]'
 ```
+
+The sequence diagram below illustrates the interaction between a
+user, the React-app frontend via Custom API, and the backend solver
+service in a Movers SAT problem-solving application.
+
+![Sequence Diagram](./report/images/sequenceDiagram.png)
+
+Below is a step-by-step explanation of the process:
+
+1. **Backend Solver Service**:
+
+    - Upon receiving the request, the backend solver service is
+        activated and begins processing the request.
+
+    - **Data Validation**: The backend performs data validation to
+        ensure that the input parameters (number of movers, floors,
+        maximum steps, and furniture details) are valid and correctly
+        formatted.
+
+    - **Problem Building**: After successful validation, the backend
+        constructs the problem by defining the necessary constraints and
+        setup required to solve the Movers SAT problem.
+
+    - **Problem Solving**: The backend then runs the solver to compute
+        the solution to the problem. This involves calculating the
+        optimal steps and actions needed to move the furniture as
+        specified.
+
+2. **Response to React-app**:
+
+    - Once the problem is solved, the backend sends the solution back
+        to the React-app. This response includes the computed steps and
+        actions for the movers and furniture.
+
+3. **Display Solution**:
+
+    - The React-app receives the solution and displays it to the user.
+        The user can now see the detailed steps and actions taken to
+        solve the Movers SAT problem.
+
+This diagram captures the entire workflow from user input to solution
+display, highlighting the key interactions and processes involved in
+solving the Movers SAT problem using the React-app and backend solver
+service.
+
+## Evaluation and final considerations
+
+First of all, we needed to thoroughly understand the problem at hand. To
+achieve this, we organized a comprehensive discussion involving all team
+members. This discussion aimed to elucidate the various aspects of the
+problem, ensuring that everyone had a clear and vivid understanding of
+the issue. We explored different perspectives, asked clarifying
+questions, and shared relevant insights, all of which contributed to a
+more profound and collective grasp of the problem's intricacies. Then we
+divided into smaller groups so that we could work on frontend and
+backend at the same time.
+
+**General Problems:**
+
+1. As none of us had prior experience with the z3-solver, we had to
+    spend a considerable amount of time learning how to use it
+    effectively.
+
+2. We encountered some difficulty in identifying all the edge cases of
+    the problem due to the lack of clarity in certain descriptions.
+
+**Frontend Problems:**
+
+1. Due to our initial unfamiliarity with the React library, we required
+    a considerable amount of time to learn how to utilize it effectively
+    to achieve the desired results.
+
+2. Offering a user-friendly interface that is both intuitive and easy
+    to use was a significant challenge. We had to ensure that the
+    interface was easy to navigate and that users could input the
+    necessary data without any confusion.
+
+**Backend Problems:**
+
+1. We initially thought that certain constraints were not necessary,
+    but after further analysis, we realized that they were crucial for
+    the problem's correct solution.
+
+2. The backend API was challenging to implement as it required
+    additional features such as data validation, error handling, and
+    response formatting, features that we initially overlooked.
