@@ -1,10 +1,28 @@
-# Movers SAT problem
+# 1. Movers SAT problem<!-- omit in toc -->
 
 This project presents a complete solution to the *movers satisfiability problem* leveraging [z3-solver](https://github.com/Z3Prover/z3). This project provides a complete frontend and backend system that is able to receive a problem instance from the user, solve it using the z3-solver, and return the solution to the user. The frontend is built using [React](https://react.dev/) and [Chakra UI](https://v2.chakra-ui.com/), while the backend is implemented using [FastAPI](https://fastapi.tiangolo.com/).
 
 To have a complete overview of how the various parts of the system interact with each other, please refer to the [System Design](#system-design) section.
 
-## Problem Description
+## Table of Contents<!-- omit in toc -->
+
+- [1.1. Problem Description](#11-problem-description)
+- [1.2. SAT mathematical model](#12-sat-mathematical-model)
+	- [1.2.1. Input Parameters](#121-input-parameters)
+	- [1.2.2. Sets / Domains](#122-sets--domains)
+	- [1.2.3. Variables](#123-variables)
+		- [A. Variables describing the state of the system](#a-variables-describing-the-state-of-the-system)
+		- [B. Variables describing the actions of the movers](#b-variables-describing-the-actions-of-the-movers)
+	- [1.2.4. Constraints](#124-constraints)
+		- [A. Action Definition](#a-action-definition)
+		- [B. Initial and Final Constraints](#b-initial-and-final-constraints)
+		- [C. Other Constraints](#c-other-constraints)
+- [1.3. System Design](#13-system-design)
+	- [1.3.1. Frontend - User Interface](#131-frontend---user-interface)
+	- [1.3.2. Backend - APIs and Solver](#132-backend---apis-and-solver)
+- [1.4. Evaluation and final considerations](#14-evaluation-and-final-considerations)
+
+## 1.1. Problem Description
 
 In the *movers satisfiability problem*, a moving company is tasked with
 relocating all furniture from a building with multiple floors. The
@@ -27,9 +45,9 @@ When a mover is on the same floor as a piece of furniture, and decides
 to carry it, the mover and the furniture in question are moved together
 to the floor below.
 
-## SAT mathematical model
+## 1.2. SAT mathematical model
 
-### Input Parameters
+### 1.2.1. Input Parameters
 
 1. $m \in \mathbb{N}^+$: number of movers
 
@@ -38,7 +56,7 @@ to the floor below.
 3. $t_{max} \in \mathbb{N}^+$: maximum number of steps to solve the
     problem
 
-### Sets / Domains
+### 1.2.2. Sets / Domains
 
 - $M = \{m_1, m_2, ..., m_m\}$: set of movers
 
@@ -50,9 +68,9 @@ to the floor below.
 - $T = \{t_1, t_2, ..., t_{max}\}$: set of timestamps from 1 to
     $t_{max}$
 
-### Variables
+### 1.2.3. Variables
 
-#### Variables describing the state of the system
+#### A. Variables describing the state of the system
 
 - $atFloor(m, l, t) \in \{0, 1\}$, *True* if mover $m$ is at floor $l$
     at time $t$
@@ -60,7 +78,7 @@ to the floor below.
 - $atFloorForniture(f, l, t) \in \{0, 1\}$, *True* if forniture $f$ is
     at floor $l$ at time $t$
 
-#### Variables describing the actions of the movers
+#### B. Variables describing the actions of the movers
 
 - $ascend(m, t) \in \{0, 1\}$, *True* if mover $m$ is ascending at
     time $t$
@@ -71,9 +89,9 @@ to the floor below.
 - $carry(m, f,  t) \in \{0, 1\}$, *True* if mover $m$ is carrying
     forniture $f$ at time $t$
 
-### Constraints
+### 1.2.4. Constraints
 
-#### Action Definition
+#### A. Action Definition
 
 This section describes how the actions of the movers alter the state of
 the system.
@@ -98,7 +116,7 @@ the system.
     \end{aligned}$$ $\forall$ mover $m \in M$, forniture $f \in F$,
     floor $l \in L$, time $t \in T$
 
-#### Initial and Final Constraints
+#### B. Initial and Final Constraints
 
 1. Initial constraint: movers start at the ground floor
 
@@ -112,7 +130,7 @@ the system.
 
     $\forall$ mover $m \in M$, forniture $f \in F$
 
-#### Other Constraints
+#### C. Other Constraints
 
 1. Each mover is exactly at one floor at a time
 
@@ -205,7 +223,7 @@ the system.
 
     $\forall$ mover $m \in M$, forniture $f \in F$, time $t \in T$
 
-## System Design
+## 1.3. System Design
 
 The system has been divided into a frontend and a backend. The frontend
 is responsible for receiving the problem instance from the user and
@@ -216,7 +234,7 @@ z3-solver. The solution will be sent back to the frontend as a response.
 In the following sections, the frontend and backend will be described in
 more detail.
 
-### Frontend - User Interface
+### 1.3.1. Frontend - User Interface
 
 The frontend of our system is built using Chakra UI, a simple, modular,
 and accessible component library that provides the building blocks
@@ -242,7 +260,7 @@ smoother user experience.
 ![System architecture
 diagram](./report/images/System_Design.png)
 
-### Backend - APIs and Solver
+### 1.3.2. Backend - APIs and Solver
 
 The backend, as previously mentioned, is responsible for receiving the
 problem instance from the frontend and solving it using the z3-solver.
@@ -313,7 +331,7 @@ display, highlighting the key interactions and processes involved in
 solving the Movers SAT problem using the React-app and backend solver
 service.
 
-## Evaluation and final considerations
+## 1.4. Evaluation and final considerations
 
 First of all, we needed to thoroughly understand the problem at hand. To
 achieve this, we organized a comprehensive discussion involving all team
