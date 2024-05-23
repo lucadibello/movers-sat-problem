@@ -112,12 +112,10 @@ the system.
     the forniture will be at the floor below (except when at the ground
     floor):
 
-	$$\begin{aligned}
-                  l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f , t) & \implies \\
-                  atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)
+    $l > 0 \land atFloor(m, l, t) \land atFloorForniture(f, l, t) \land carry(m, f, t) \implies atFloor(m, l-1, t+1) \land atFloorForniture(f, l-1, t+1)$
 
-    \end{aligned}$$
-	$\forall$ mover $m \in M$, forniture $f \in F$, floor $l \in L$, time $t \in T$
+    $\forall \ \text{mover } m \in M, \text{forniture } f \in F, \text{floor } l \in L, \text{time } t \in T$
+
 
 #### B. Initial and Final Constraints
 
