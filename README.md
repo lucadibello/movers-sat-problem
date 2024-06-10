@@ -1,6 +1,6 @@
 # 1. Movers SAT problem<!-- omit in toc -->
 
-This project presents a complete solution to the *movers satisfiability problem* leveraging [z3-solver](https://github.com/Z3Prover/z3). This project provides a complete frontend and backend system that is able to receive a problem instance from the user, solve it using the z3-solver, and return the solution to the user. The frontend is built using [React](https://react.dev/) and [Chakra UI](https://v2.chakra-ui.com/), while the backend is implemented using [FastAPI](https://fastapi.tiangolo.com/).
+This project allows to compute an optimal forniture moving schedule that allows a team of movers to complete their job in the most efficient way possible. This project provides a complete frontend and backend system that is able to receive a problem instance from the user, solve it using [z3-solver](https://github.com/Z3Prover/z3), and return the solution to the user. The frontend is built using [React](https://react.dev/) and [Chakra UI](https://v2.chakra-ui.com/), while the backend is implemented using [FastAPI](https://fastapi.tiangolo.com/).
 
 To have a complete overview of how the various parts of the system interact with each other, please refer to the [System Design](#system-design) section.
 
